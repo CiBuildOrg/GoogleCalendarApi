@@ -1,6 +1,6 @@
 {
   "ConnectionStrings": {
-    "IdentityContext": "Data Source=.;Initial Catalog=AdfDb;Integrated Security=True;"
+    "IdentityContext": "Data Source=.;Initial Catalog=MvcServer;Integrated Security=True;"
   },
   
   "Serilog": {
