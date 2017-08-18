@@ -19,7 +19,7 @@ textarea {
 
 /* Carousel */
 .carousel-caption {
-    z-index: 10 !important;
+    z-index: 10;
 }
 
     .carousel-caption p {
@@ -29,6 +29,6 @@ textarea {
 
 @media (min-width: 768px) {
     .carousel-caption {
-        z-index: 10 !important;
+        z-index: 10;
     }
 }

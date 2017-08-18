@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Mvc.Server.Models;
-using Mvc.Server.Services;
 using OpenIddict.Core;
 using OpenIddict.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -155,9 +154,6 @@ namespace Mvc.Server
 
                 options.DisableHttpsRequirement();
             });
-
-            services.AddTransient<IEmailSender, AuthMessageSender>();
-            services.AddTransient<ISmsSender, AuthMessageSender>();
         }
 
         // ReSharper disable once UnusedMember.Local

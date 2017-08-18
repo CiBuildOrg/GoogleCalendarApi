@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Net;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using AspNet.Security.OAuth.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Mvc.Server.Models;
 
 namespace Mvc.Server.Controllers

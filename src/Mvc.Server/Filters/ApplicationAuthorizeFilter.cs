@@ -86,8 +86,7 @@ namespace Mvc.Server.Filters
         {
             var filters = context.Filters;
 
-            var descriptor = context?.ActionDescriptor as ControllerActionDescriptor;
-            if (descriptor != null)
+            if (context.ActionDescriptor is ControllerActionDescriptor descriptor)
             {
                 var attributes = descriptor.MethodInfo.GetCustomAttributes(true);
                 var routeAttribute = attributes.SingleOrDefault(x => x.GetType() == typeof(RouteAttribute));
@@ -109,7 +108,7 @@ namespace Mvc.Server.Filters
                 var authorizeAttribute = attributes.SingleOrDefault(x => x.GetType() == typeof(AuthorizeAttribute));
                 if (authorizeAttribute != null)
                 {
-                    var attribute = (AuthorizeAttribute) authorizeAttribute;
+                    var attribute = (AuthorizeAttribute)authorizeAttribute;
                     if (attribute.AuthenticationSchemes == OAuthValidationDefaults.AuthenticationScheme)
                     {
                         return;
@@ -140,13 +139,13 @@ namespace Mvc.Server.Filters
             var authorizationResult = await policyEvaluator.AuthorizeAsync(effectivePolicy, authenticationResult, context.HttpContext, context);
             if (authorizationResult.Challenged)
             {
-                context.Result = new ChallengeResult(Enumerable.ToArray<string>(effectivePolicy.AuthenticationSchemes));
+                context.Result = new ChallengeResult(effectivePolicy.AuthenticationSchemes.ToArray());
             }
             else
             {
                 if (!authorizationResult.Forbidden)
                     return;
-                context.Result = new ForbidResult(Enumerable.ToArray<string>(effectivePolicy.AuthenticationSchemes));
+                context.Result = new ForbidResult(effectivePolicy.AuthenticationSchemes.ToArray());
             }
         }
 

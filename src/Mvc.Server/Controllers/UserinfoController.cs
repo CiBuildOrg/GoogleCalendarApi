@@ -36,10 +36,12 @@ namespace Mvc.Server.Controllers
                 });
             }
 
-            var claims = new JObject();
+            var claims = new JObject
+            {
+                [OpenIdConnectConstants.Claims.Subject] = await _userManager.GetUserIdAsync(user)
+            };
 
             // Note: the "sub" claim is a mandatory claim and must be included in the JSON response.
-            claims[OpenIdConnectConstants.Claims.Subject] = await _userManager.GetUserIdAsync(user);
 
             if (User.HasClaim(OpenIdConnectConstants.Claims.Scope, OpenIdConnectConstants.Scopes.Email))
             {

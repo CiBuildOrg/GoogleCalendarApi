@@ -10,7 +10,7 @@ namespace Mvc.Server
         {
             var config = new ConfigurationBuilder()
                 .AddCommandLine(args)
-                .AddEnvironmentVariables(prefix: "ASPNETCORE_")
+                .AddEnvironmentVariables("ASPNETCORE_")
                 .AddJsonFile("hosting.json")
                 .Build();
 

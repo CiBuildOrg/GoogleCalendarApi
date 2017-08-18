@@ -1,10 +1,4 @@
-﻿/*
- * Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * See https://github.com/openiddict/openiddict-core for more information concerning
- * the license and the contributors participating to this project.
- */
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -196,7 +190,7 @@ namespace Mvc.Server.Controllers
                 return SignIn(ticket.Principal, ticket.Properties, ticket.AuthenticationScheme);
             }
 
-            else if (request.IsAuthorizationCodeGrantType() || request.IsRefreshTokenGrantType())
+            if (request.IsAuthorizationCodeGrantType() || request.IsRefreshTokenGrantType())
             {
                 // Retrieve the claims principal stored in the authorization code/refresh token.
                 var info = await HttpContext.AuthenticateAsync(OpenIdConnectServerDefaults.AuthenticationScheme);
@@ -285,7 +279,7 @@ namespace Mvc.Server.Controllers
                 // The other claims will only be added to the access_token, which is encrypted when using the default format.
                 if ((claim.Type == OpenIdConnectConstants.Claims.Name && ticket.HasScope(OpenIdConnectConstants.Scopes.Profile)) ||
                     (claim.Type == OpenIdConnectConstants.Claims.Email && ticket.HasScope(OpenIdConnectConstants.Scopes.Email)) ||
-                    (claim.Type == OpenIdConnectConstants.Claims.Role && ticket.HasScope(OpenIddict.Core.OpenIddictConstants.Claims.Roles)))
+                    (claim.Type == OpenIdConnectConstants.Claims.Role && ticket.HasScope(OpenIddictConstants.Claims.Roles)))
                 {
                     claim.SetDestinations(OpenIdConnectConstants.Destinations.IdentityToken, OpenIdConnectConstants.Destinations.AccessToken);
                 }
