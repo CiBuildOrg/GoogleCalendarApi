@@ -74,7 +74,7 @@ namespace Mvc.Server.Filters
         /// </summary>
         /// <param name="policy">The name of the policy to require for authorization.</param>
         public ApplicationAuthorizeFilter(string policy)
-            : this((IEnumerable<IAuthorizeData>) new[]
+            : this(new[]
             {
                 new AuthorizeAttribute(policy)
             })
