@@ -49,7 +49,7 @@ namespace Mvc.Server.Controllers
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
                     return RedirectToLocal(returnUrl);
@@ -91,12 +91,6 @@ namespace Mvc.Server.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
-                    // Send an email with this link
-                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Context.Request.Scheme);
-                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                    //    "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>");
                     await _signInManager.SignInAsync(user, false);
                     return RedirectToLocal(returnUrl);
                 }
@@ -293,22 +287,7 @@ namespace Mvc.Server.Controllers
         {
             return View();
         }
-
-        //
-        // GET: /Account/VerifyCode
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> VerifyCode(string provider, bool rememberMe, string returnUrl = null)
-        {
-            // Require that the user has already logged in via username/password or external login
-            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-            if (user == null)
-            {
-                return View("Error");
-            }
-            return View(new VerifyCodeViewModel { Provider = provider, ReturnUrl = returnUrl, RememberMe = rememberMe });
-        }
-
+        
         #region Helpers
 
         // The following code creates the database and schema if they don't exist.
@@ -331,11 +310,6 @@ namespace Mvc.Server.Controllers
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
-        }
-
-        private async Task<ApplicationUser> GetCurrentUserAsync()
-        {
-            return await _userManager.GetUserAsync(User);
         }
 
         private IActionResult RedirectToLocal(string returnUrl)

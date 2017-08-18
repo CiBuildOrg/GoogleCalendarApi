@@ -4,10 +4,10 @@ using System.Runtime.Serialization;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AspNet.Security.OAuth.Validation;
-using AspNet.Security.OpenIdConnect.Primitives;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Mvc.Server.Helpers;
 using Mvc.Server.Models;
 
 namespace Mvc.Server.Controllers
@@ -26,8 +26,8 @@ namespace Mvc.Server.Controllers
         [HttpGet("message")]
         public async Task<IActionResult> GetMessage()
         {
-            var userId = User.FindFirst(OpenIdConnectConstants.Claims.Subject).Value;
-            var user = (await _userManager.GetUsersForClaimAsync(new Claim(OpenIdConnectConstants.Claims.Subject, userId))).SingleOrDefault();
+            var userId = User.FindFirst(CustomClaims.UserIdClaim).Value;
+            var user = (await _userManager.FindByIdAsync(userId));
             if (user == null)
             {
                throw new BadRequestException("No user found");

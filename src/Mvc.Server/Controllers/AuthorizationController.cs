@@ -287,15 +287,15 @@ namespace Mvc.Server.Controllers
                 claim.SetDestinations(OpenIdConnectConstants.Destinations.AccessToken);
             }
 
-            AddDynamicClaims(ticket);
+            AddUserIdClaim(ticket, user);
 
             return ticket;
         }
 
-        private void AddDynamicClaims(AuthenticationTicket ticket)
+        private void AddUserIdClaim(AuthenticationTicket ticket, ApplicationUser user)
         {
             var claimsIdentity = ticket.Principal.Identity as ClaimsIdentity;
-            claimsIdentity.AddClaim("CustomClaimType", "CustomClaimValue", OpenIdConnectConstants.Destinations.AccessToken);
+            claimsIdentity.AddClaim(CustomClaims.UserIdClaim, user.Id, OpenIdConnectConstants.Destinations.AccessToken);
         }
     }
 }
