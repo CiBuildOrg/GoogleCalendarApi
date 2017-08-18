@@ -16,10 +16,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Mvc.Server.Filters;
 using Mvc.Server.Helpers;
+using Mvc.Server.ViewModels;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
+
 
 namespace Mvc.Server
 {
@@ -31,7 +34,7 @@ namespace Mvc.Server
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("config.json", false, true)
+                .AddJsonFile("config.json", true, true)
                 .AddJsonFile($"config.{env.EnvironmentName.ToLower()}.json", true)
                 .AddEnvironmentVariables();
             Configuration = configuration.Build();
@@ -39,6 +42,10 @@ namespace Mvc.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddOptions();
+            services.Configure<AppOptions>(options => Configuration.Bind(options));
+            services.AddSingleton<IConfiguration>(Configuration);
+            var opts = Configuration.Get<AppOptions>();
 
             // Add Swagger generator
             services.AddSwaggerGen(options =>
@@ -75,7 +82,7 @@ namespace Mvc.Server
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 // Configure the context to use Microsoft SQL Server.
-                options.UseSqlServer(Configuration["ConnectionStrings:IdentityContext"]);
+                options.UseSqlServer(opts.ConnectionStrings.SqlServerProvider);
 
                 // Register the entity sets needed by OpenIddict.
                 // Note: use the generic overload if you need
@@ -98,7 +105,7 @@ namespace Mvc.Server
             // which saves you from doing the mapping in your authorization controller.
             services.Configure<IdentityOptions>(options =>
             {
-                
+
                 options.ClaimsIdentity.UserNameClaimType = OpenIdConnectConstants.Claims.Name;
                 options.ClaimsIdentity.UserIdClaimType = OpenIdConnectConstants.Claims.Subject;
                 options.ClaimsIdentity.RoleClaimType = OpenIdConnectConstants.Claims.Role;
@@ -123,42 +130,54 @@ namespace Mvc.Server
 
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = "http://localhost:5000";
-                    options.Audience = "resource-server";
+                    options.Authority = opts.Jwt.Authority;
+                    options.Audience = opts.Jwt.Audience;
                     options.RequireHttpsMetadata = false;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.Jwt.SecretKey)),
+                        ValidateIssuer = true,
+                        ValidIssuer = Configuration.Get<AppOptions>().Jwt.Authority,
+                        ValidateAudience = true,
+                        ValidAudiences = new[] { opts.Jwt.Audience },
+                        ValidateLifetime = true,
+                    };
                 });
 
-           
-                // Register the OpenIddict services.
-                services.AddOpenIddict(options =>
-            {
-                // Register the Entity Framework stores.
-                options.AddEntityFrameworkCoreStores<ApplicationDbContext>();
-                // Register the ASP.NET Core MVC binder used by OpenIddict.
-                // Note: if you don't call this method, you won't be able to
-                // bind OpenIdConnectRequest or OpenIdConnectResponse parameters.
-                options.AddMvcBinders();
 
-                // Enable the authorization, logout, token and userinfo endpoints.
-                options.EnableAuthorizationEndpoint("/connect/authorize")
-                       .EnableLogoutEndpoint("/connect/logout")
-                       .EnableTokenEndpoint("/connect/token")
-                       .EnableUserinfoEndpoint("/api/userinfo");
+            // Register the OpenIddict services.
+            services.AddOpenIddict(options =>
+        {
+            // Register the Entity Framework stores.
+            options.AddEntityFrameworkCoreStores<ApplicationDbContext>();
+            // Register the ASP.NET Core MVC binder used by OpenIddict.
+            // Note: if you don't call this method, you won't be able to
+            // bind OpenIdConnectRequest or OpenIdConnectResponse parameters.
+            options.AddMvcBinders();
 
-                // Note: the Mvc.Client sample only uses the code flow and the password flow, but you
-                // can enable the other flows if you need to support implicit or client credentials.
-                options
-                       .AllowPasswordFlow()
-                       .AllowRefreshTokenFlow();
+            // Enable the authorization, logout, token and userinfo endpoints.
+            options.EnableAuthorizationEndpoint(opts.Auth.AuthorizeEndpoint)
+               .EnableLogoutEndpoint(opts.Auth.LogoutEndpoint)
+               .EnableTokenEndpoint(opts.Auth.TokenEndpoint)
+               .EnableUserinfoEndpoint(opts.Auth.UserInfoEndpoint);
 
-                options.UseJsonWebTokens();
-                options.AddEphemeralSigningKey();
-                // Make the "client_id" parameter mandatory when sending a token request.
-                options.RequireClientIdentification();
-                // During development, you can disable the HTTPS requirement.
+            // Note: the Mvc.Client sample only uses the code flow and the password flow, but you
+            // can enable the other flows if you need to support implicit or client credentials.
+            options
+               .AllowPasswordFlow()
+               .AllowRefreshTokenFlow();
 
-                options.DisableHttpsRequirement();
-            });
+            options.UseJsonWebTokens();
+            //options.AddEphemeralSigningKey();
+
+            options.AddSigningKey(
+                new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.Get<AppOptions>().Jwt.SecretKey)));
+            // Make the "client_id" parameter mandatory when sending a token request.
+            options.RequireClientIdentification();
+            // During development, you can disable the HTTPS requirement.
+            options.DisableHttpsRequirement();
+        });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -175,6 +194,7 @@ namespace Mvc.Server
             app.UseStatusCodePagesWithReExecute("/error");
 
             app.UseAuthentication();
+
 
             app.UseExampleMiddleware();
 
@@ -209,7 +229,7 @@ namespace Mvc.Server
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
-                if(!roleManager.Roles.Any(x => x.Name == "Admin"))
+                if (!roleManager.Roles.Any(x => x.Name == "Admin"))
                 {
                     await roleManager.CreateAsync(new ApplicationRole
                     {
@@ -253,7 +273,7 @@ namespace Mvc.Server
                     }
 
                     await userManager.SetLockoutEnabledAsync(applicationUser, false);
-                    await userManager.AddToRolesAsync(applicationUser, new[] {"Admin", "User"});
+                    await userManager.AddToRolesAsync(applicationUser, new[] { "Admin", "User" });
                 }
 
                 if (await manager.FindByClientIdAsync("mvc", cancellationToken) == null)

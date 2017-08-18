@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Mvc.Server.Helpers;
 using Mvc.Server.Models;
+using Mvc.Server.ViewModels;
 using OpenIddict.Core;
 
 namespace Mvc.Server.Controllers
@@ -22,17 +24,20 @@ namespace Mvc.Server.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly AppOptions _appOptions;
 
         public AuthorizationController(
             IOptions<IdentityOptions> identityOptions,
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager, 
-            ApplicationDbContext context)
+            ApplicationDbContext context, 
+            IOptions<AppOptions> appOptions)
         {
             _identityOptions = identityOptions;
             _signInManager = signInManager;
             _userManager = userManager;
             _context = context;
+            _appOptions = appOptions.Value;
         }
 
         #region Authorization code, implicit and implicit flows
@@ -172,7 +177,7 @@ namespace Mvc.Server.Controllers
                 }.Intersect(request.GetScopes()));
             }
 
-            ticket.SetResources("resource-server");
+            ticket.SetResources(_appOptions.Jwt.Audience);
 
             // Note: by default, claims are NOT automatically included in the access and identity tokens.
             // To allow OpenIddict to serialize them, you must attach them a destination, that specifies
@@ -199,6 +204,11 @@ namespace Mvc.Server.Controllers
             }
 
             AddUserIdClaim(ticket, user);
+
+            ticket.SetAudiences(_appOptions.Jwt.Audience);
+            ticket.SetAccessTokenLifetime(TimeSpan.FromSeconds(_appOptions.Jwt.AccessTokenLifetime));
+            ticket.SetIdentityTokenLifetime(TimeSpan.FromSeconds(_appOptions.Jwt.IdentityTokenLifetime));
+            ticket.SetRefreshTokenLifetime(TimeSpan.FromSeconds(_appOptions.Jwt.RefreshTokenLifetime));
 
             return ticket;
         }
