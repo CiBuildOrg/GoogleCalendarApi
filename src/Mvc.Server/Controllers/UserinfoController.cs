@@ -13,7 +13,6 @@ namespace Mvc.Server.Controllers
     [Route("api")]
     public class UserinfoController : BaseController
     {
-
         public UserinfoController(UserManager<ApplicationUser> userManager) : base(userManager)
         {
         }

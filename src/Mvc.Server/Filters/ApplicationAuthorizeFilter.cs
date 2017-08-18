@@ -134,8 +134,6 @@ namespace Mvc.Server.Filters
             var policyEvaluator = context.HttpContext.RequestServices.GetRequiredService<IPolicyEvaluator>();
             var authenticationResult = await policyEvaluator.AuthenticateAsync(effectivePolicy, context.HttpContext);
 
-            
-
             var authorizationResult = await policyEvaluator.AuthorizeAsync(effectivePolicy, authenticationResult, context.HttpContext, context);
             if (authorizationResult.Challenged)
             {
