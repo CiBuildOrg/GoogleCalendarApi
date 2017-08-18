@@ -161,24 +161,14 @@ namespace Mvc.Server
             });
         }
 
-        // ReSharper disable once UnusedMember.Local
-        private static void AddAndConfigurePolicies(IServiceCollection services)
-        {
-            services.AddAuthorization(options =>
-            {
-                // we can make this more granular 
-                //options.AddPolicy(AppPolicies.Somepolicy, policy => policy.RequireClaim(AppClaimTypes.SomeClaim));
-            });
-        }
-
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddSerilog();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
 
             app.UseStaticFiles();
 
@@ -272,8 +262,8 @@ namespace Mvc.Server
                     {
                         ClientId = "mvc",
                         DisplayName = "MVC client application",
-                        LogoutRedirectUri = "http://localhost:53507/signout-callback-oidc",
-                        RedirectUri = "http://localhost:53507/signin-oidc"
+                        LogoutRedirectUri = "",
+                        RedirectUri = ""
                     };
 
                     await manager.CreateAsync(application, "901564A5-E7FE-42CB-B10D-61EF6A8F3654", cancellationToken);
@@ -294,7 +284,7 @@ namespace Mvc.Server
                     {
                         ClientId = "postman",
                         DisplayName = "Postman",
-                        RedirectUri = "https://www.getpostman.com/oauth2/callback"
+                        RedirectUri = ""
                     };
 
                     await manager.CreateAsync(application, cancellationToken);

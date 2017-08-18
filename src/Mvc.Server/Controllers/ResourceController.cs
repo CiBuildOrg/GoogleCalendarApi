@@ -3,6 +3,7 @@ using AspNet.Security.OAuth.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Mvc.Server.Controllers.Base;
 using Mvc.Server.Models;
 
 namespace Mvc.Server.Controllers

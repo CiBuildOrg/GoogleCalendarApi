@@ -52,10 +52,7 @@ namespace Mvc.Server.Controllers
                 {
                     return RedirectToLocal(returnUrl);
                 }
-                if (result.IsLockedOut)
-                {
-                    return View("Lockout");
-                }
+               
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                 return View(model);
             }

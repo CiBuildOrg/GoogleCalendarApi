@@ -4,6 +4,7 @@ using AspNet.Security.OpenIdConnect.Primitives;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Mvc.Server.Controllers.Base;
 using Mvc.Server.Models;
 using Newtonsoft.Json.Linq;
 using OpenIddict.Core;
