@@ -1,0 +1,20 @@
+<Project>
+
+  <Import Project="common.props" />
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSource>true</IncludeSource>
+    <IncludeSymbols>true</IncludeSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Product>OpenIddict</Product>
+    <PackageIconUrl>https://avatars2.githubusercontent.com/u/28193935?v=4&u=109c540a3fb378e5713d7b267ab951b5f4238e87&s=400</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/CiBuildOrg/Core-Web-Api</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/CiBuildOrg/Core-Web-Api/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/CiBuildOrg/Core-Web-Api.git</RepositoryUrl>
+  </PropertyGroup>
+
+</Project>
