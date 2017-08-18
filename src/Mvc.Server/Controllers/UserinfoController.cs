@@ -11,13 +11,11 @@ using OpenIddict.Core;
 namespace Mvc.Server.Controllers
 {
     [Route("api")]
-    public class UserinfoController : Controller
+    public class UserinfoController : BaseController
     {
-        private readonly UserManager<ApplicationUser> _userManager;
 
-        public UserinfoController(UserManager<ApplicationUser> userManager)
+        public UserinfoController(UserManager<ApplicationUser> userManager) : base(userManager)
         {
-            _userManager = userManager;
         }
 
         //
@@ -26,7 +24,7 @@ namespace Mvc.Server.Controllers
         [HttpGet("userinfo"), Produces("application/json")]
         public async Task<IActionResult> Userinfo()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await CurrentUser();
             if (user == null)
             {
                 return BadRequest(new OpenIdConnectResponse
@@ -38,26 +36,26 @@ namespace Mvc.Server.Controllers
 
             var claims = new JObject
             {
-                [OpenIdConnectConstants.Claims.Subject] = await _userManager.GetUserIdAsync(user)
+                [OpenIdConnectConstants.Claims.Subject] = await UserManager.GetUserIdAsync(user)
             };
 
             // Note: the "sub" claim is a mandatory claim and must be included in the JSON response.
 
             if (User.HasClaim(OpenIdConnectConstants.Claims.Scope, OpenIdConnectConstants.Scopes.Email))
             {
-                claims[OpenIdConnectConstants.Claims.Email] = await _userManager.GetEmailAsync(user);
-                claims[OpenIdConnectConstants.Claims.EmailVerified] = await _userManager.IsEmailConfirmedAsync(user);
+                claims[OpenIdConnectConstants.Claims.Email] = await UserManager.GetEmailAsync(user);
+                claims[OpenIdConnectConstants.Claims.EmailVerified] = await UserManager.IsEmailConfirmedAsync(user);
             }
 
             if (User.HasClaim(OpenIdConnectConstants.Claims.Scope, OpenIdConnectConstants.Scopes.Phone))
             {
-                claims[OpenIdConnectConstants.Claims.PhoneNumber] = await _userManager.GetPhoneNumberAsync(user);
-                claims[OpenIdConnectConstants.Claims.PhoneNumberVerified] = await _userManager.IsPhoneNumberConfirmedAsync(user);
+                claims[OpenIdConnectConstants.Claims.PhoneNumber] = await UserManager.GetPhoneNumberAsync(user);
+                claims[OpenIdConnectConstants.Claims.PhoneNumberVerified] = await UserManager.IsPhoneNumberConfirmedAsync(user);
             }
 
             if (User.HasClaim(OpenIdConnectConstants.Claims.Scope, OpenIddictConstants.Scopes.Roles))
             {
-                claims[OpenIddictConstants.Claims.Roles] = JArray.FromObject(await _userManager.GetRolesAsync(user));
+                claims[OpenIddictConstants.Claims.Roles] = JArray.FromObject(await UserManager.GetRolesAsync(user));
             }
 
             // Note: the complete list of standard claims supported by the OpenID Connect specification
