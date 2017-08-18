@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
-using Mvc.Server.Controllers;
 using Mvc.Server.Exceptions;
 
 namespace Mvc.Server.Filters
@@ -41,45 +37,6 @@ namespace Mvc.Server.Filters
                 success = false,
                 message
             });
-        }
-    }
-
-    public class ValidateModelFilterAttribute : ActionFilterAttribute
-    {
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            // Allow partial update
-            if (!context.ModelState.IsValid && (context.HttpContext.Request.Method == "PATCH" || context.HttpContext.Request.Method == "PUT"))
-            {
-                // get the errors which only have 'required type' error
-                var modelStateErrors = context.ModelState.Where(model =>
-                {
-                    // ignore only if required error is present for the property
-                    if (model.Value.Errors.Count == 1)
-                    {
-                        // improve code to remove check on hard coded string - "required"
-                        // assuming required validation error message contains word "required"
-                        return model.Value.Errors.FirstOrDefault().ErrorMessage.Contains("required");
-                    }
-                    return false;
-                });
-                // remove 'required type' errors from the ModelState
-                foreach (var errorModel in modelStateErrors)
-                {
-                    context.ModelState.Remove(errorModel.Key);
-                }
-
-            }
-            // Return validation error response
-            if (!context.ModelState.IsValid)
-            {
-                var modelErrors = new Dictionary<string, object>
-                {
-                    ["message"] = "The request has validation errors.",
-                    ["errors"] = new SerializableError(context.ModelState)
-                };
-                context.Result = new BadRequestObjectResult(modelErrors);
-            }
         }
     }
 }
