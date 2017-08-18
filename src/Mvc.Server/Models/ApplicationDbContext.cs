@@ -4,7 +4,7 @@ using OpenIddict.Models;
 
 namespace Mvc.Server.Models
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
         public ApplicationDbContext(DbContextOptions options)
             : base(options) { }

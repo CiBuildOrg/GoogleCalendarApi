@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace Mvc.Server.Filters
     {
         private readonly ILogger _logger;
 
+        [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
         public CustomExceptionFilterAttribute(ILogger<CustomExceptionFilterAttribute> logger)
         {
             _logger = logger;

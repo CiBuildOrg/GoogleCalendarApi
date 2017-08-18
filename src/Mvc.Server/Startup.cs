@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AspNet.Security.OpenIdConnect.Primitives;
@@ -15,6 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Mvc.Server.Filters;
+using Mvc.Server.Helpers;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -86,7 +89,7 @@ namespace Mvc.Server
                 .CreateLogger();
 
             // Register the Identity services.
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -98,6 +101,7 @@ namespace Mvc.Server
                 options.ClaimsIdentity.UserNameClaimType = OpenIdConnectConstants.Claims.Name;
                 options.ClaimsIdentity.UserIdClaimType = OpenIdConnectConstants.Claims.Subject;
                 options.ClaimsIdentity.RoleClaimType = OpenIdConnectConstants.Claims.Role;
+
 
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 1;
@@ -174,11 +178,14 @@ namespace Mvc.Server
                 app.UseDeveloperExceptionPage();
             }
 
+
             app.UseStaticFiles();
 
             app.UseStatusCodePagesWithReExecute("/error");
 
             app.UseAuthentication();
+
+            app.UseExampleMiddleware();
 
             app.UseMvcWithDefaultRoute();
 
@@ -207,6 +214,56 @@ namespace Mvc.Server
                 await context.Database.EnsureCreatedAsync(cancellationToken);
 
                 var manager = scope.ServiceProvider.GetRequiredService<OpenIddictApplicationManager<OpenIddictApplication>>();
+
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+
+                if(!roleManager.Roles.Any(x => x.Name == "Admin"))
+                {
+                    await roleManager.CreateAsync(new ApplicationRole
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Name = "Admin",
+                        NormalizedName = "admin"
+                    });
+                }
+
+                if (!roleManager.Roles.Any(x => x.Name == "User"))
+                {
+                    await roleManager.CreateAsync(new ApplicationRole
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Name = "User",
+                        NormalizedName = "user"
+                    });
+                }
+
+                if (await userManager.FindByEmailAsync("cioclea.doru@gmail.com") == null)
+                {
+                    // create the user 
+                    var applicationUser = new ApplicationUser
+                    {
+                        Email = "cioclea.doru@gmail.com",
+                        EmailConfirmed = true,
+                        Id = Guid.NewGuid().ToString(),
+                        UserName = "doruc"
+                    };
+
+                    var result = await userManager.CreateAsync(applicationUser, "secret");
+                    if (!result.Succeeded)
+                    {
+                        StringBuilder builder = new StringBuilder();
+                        foreach (var err in result.Errors)
+                        {
+                            builder.AppendLine(err.Description);
+                        }
+
+                        throw new Exception(builder.ToString());
+                    }
+
+                    await userManager.SetLockoutEnabledAsync(applicationUser, false);
+                    await userManager.AddToRolesAsync(applicationUser, new[] {"Admin", "User"});
+                }
 
                 if (await manager.FindByClientIdAsync("mvc", cancellationToken) == null)
                 {
