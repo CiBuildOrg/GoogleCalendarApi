@@ -37,7 +37,7 @@ namespace Mvc.Server.Policies
 
         public static List<string> GetAppUserClaims()
         {
-            return GetAll().Where(x => x == MessageAdmin).ToList();
+            return GetAll().Where(x => x == MessageUser).ToList();
         }
     }
 }

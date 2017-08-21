@@ -78,13 +78,19 @@ namespace Mvc.Server
                 .AddJsonFormatters()
                 .AddAuthorization(options =>
                 {
-                    
+                    // Create a policy for each permission
+                    Type type = typeof(PermissionClaims);
+                    foreach (var permissionClaim in type.GetFields())
+                    {
+                        var permissionValue = permissionClaim.GetValue(null).ToString();
+                        options.AddPolicy(permissionValue, policy => policy.Requirements.Add(new PermissionRequirement(permissionValue)));
+                    }
                 })
                 .AddDataAnnotations()
                 .AddCors()
                 .AddApiExplorer();
             services.AddMvc();
-
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 // Configure the context to use Microsoft SQL Server.
