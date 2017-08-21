@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ using Microsoft.IdentityModel.Tokens;
 using Mvc.Server.Filters;
 using Mvc.Server.Helpers;
 using Mvc.Server.Options;
+using Mvc.Server.Policies;
 using Mvc.Server.ViewModels;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
@@ -235,15 +237,22 @@ namespace Mvc.Server
 
                 if (!roleManager.Roles.Any(x => x.Name == "Admin"))
                 {
-                    var adminRole = await roleManager.CreateAsync(new ApplicationRole
+                    await roleManager.CreateAsync(new ApplicationRole
                     {
                         Id = Guid.NewGuid().ToString(),
                         Name = "Admin",
                         NormalizedName = "admin",
-                        
                     });
 
-                    
+                    var adminRole = roleManager.Roles.SingleOrDefault(x => x.Name == "Admin");
+
+                    if (adminRole == null)
+                        throw new Exception("Newly created role Admin could not be found");
+
+                    foreach (var claim in PermissionClaims.GetAdminClaims())
+                    {
+                        await roleManager.AddClaimAsync(adminRole, new Claim(CustomClaimTypes.Permission, claim));
+                    }
                 }
 
                 if (!roleManager.Roles.Any(x => x.Name == "User"))
@@ -254,6 +263,16 @@ namespace Mvc.Server
                         Name = "User",
                         NormalizedName = "user"
                     });
+
+                    var userRole = roleManager.Roles.SingleOrDefault(x => x.Name == "User");
+
+                    if (userRole == null)
+                        throw new Exception("Newly created role Admin could not be found");
+
+                    foreach (var claim in PermissionClaims.GetAppUserClaims())
+                    {
+                        await roleManager.AddClaimAsync(userRole, new Claim(CustomClaimTypes.Permission, claim));
+                    }
                 }
 
                 if (await userManager.FindByEmailAsync("cioclea.doru@gmail.com") == null)
