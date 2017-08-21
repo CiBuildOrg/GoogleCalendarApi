@@ -1,4 +1,4 @@
-﻿namespace Mvc.Server.ViewModels
+﻿namespace Mvc.Server.Options
 {
     public class Jwt
     {

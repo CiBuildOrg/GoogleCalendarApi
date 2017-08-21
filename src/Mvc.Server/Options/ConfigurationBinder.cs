@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 
-namespace Mvc.Server.ViewModels
+namespace Mvc.Server.Options
 {
     /// <summary>
     /// Static helper class that allows binding strongly typed objects to configuration values.

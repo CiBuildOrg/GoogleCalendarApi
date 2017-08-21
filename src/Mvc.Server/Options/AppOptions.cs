@@ -1,4 +1,6 @@
-﻿namespace Mvc.Server.ViewModels
+﻿using Mvc.Server.ViewModels;
+
+namespace Mvc.Server.Options
 {
     public class AppOptions
     {

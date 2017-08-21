@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Mvc.Server.Filters;
 using Mvc.Server.Helpers;
+using Mvc.Server.Options;
 using Mvc.Server.ViewModels;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
@@ -73,7 +74,10 @@ namespace Mvc.Server
                     }
                 )
                 .AddJsonFormatters()
-                .AddAuthorization()
+                .AddAuthorization(options =>
+                {
+                    
+                })
                 .AddDataAnnotations()
                 .AddCors()
                 .AddApiExplorer();
@@ -231,12 +235,15 @@ namespace Mvc.Server
 
                 if (!roleManager.Roles.Any(x => x.Name == "Admin"))
                 {
-                    await roleManager.CreateAsync(new ApplicationRole
+                    var adminRole = await roleManager.CreateAsync(new ApplicationRole
                     {
                         Id = Guid.NewGuid().ToString(),
                         Name = "Admin",
-                        NormalizedName = "admin"
+                        NormalizedName = "admin",
+                        
                     });
+
+                    
                 }
 
                 if (!roleManager.Roles.Any(x => x.Name == "User"))
@@ -300,7 +307,7 @@ namespace Mvc.Server
                     }
 
                     await userManager.SetLockoutEnabledAsync(applicationUser, false);
-                    await userManager.AddToRolesAsync(applicationUser, new[] {  "User" });
+                    await userManager.AddToRolesAsync(applicationUser, new[] { "User" });
                 }
 
                 if (await manager.FindByClientIdAsync("mvc", cancellationToken) == null)
