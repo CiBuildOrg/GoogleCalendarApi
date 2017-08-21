@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
@@ -23,6 +24,7 @@ namespace Mvc.Server.Controllers
         private readonly IOptions<IdentityOptions> _identityOptions;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly ApplicationDbContext _context;
         private readonly AppOptions _appOptions;
 
@@ -30,12 +32,14 @@ namespace Mvc.Server.Controllers
             IOptions<IdentityOptions> identityOptions,
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager, 
+            RoleManager<ApplicationRole> roleManager,
             ApplicationDbContext context, 
             IOptions<AppOptions> appOptions)
         {
             _identityOptions = identityOptions;
             _signInManager = signInManager;
             _userManager = userManager;
+            this._roleManager = roleManager;
             _context = context;
             _appOptions = appOptions.Value;
         }
@@ -167,14 +171,39 @@ namespace Mvc.Server.Controllers
                 // Set the list of scopes granted to the client application.
                 // Note: the offline_access scope must be granted
                 // to allow OpenIddict to return a refresh token.
-                ticket.SetScopes(new[]
+
+                var roleNames = await _userManager.GetRolesAsync(user);
+                var identity = ticket.Principal.Identity as ClaimsIdentity;
+                var permissionClaims = new List<Claim>();
+
+                // Get all the roles and add them to the role claim
+                foreach (var roleName in roleNames)
+                {
+                    // Remove tenant id from role name to make it user friendly
+                    identity.AddClaim(OpenIdConnectConstants.Claims.Role,
+                        OpenIdConnectConstants.Destinations.AccessToken,
+                        OpenIdConnectConstants.Destinations.IdentityToken);
+                    var role = await _roleManager.FindByNameAsync(roleName);
+                    // Get all the permission claims of the role
+                    permissionClaims.AddRange(await _roleManager.GetClaimsAsync(role));
+                }
+
+                var scopes = new List<string>
                 {
                     OpenIdConnectConstants.Scopes.OpenId,
                     OpenIdConnectConstants.Scopes.Email,
                     OpenIdConnectConstants.Scopes.Profile,
                     OpenIdConnectConstants.Scopes.OfflineAccess,
                     OpenIddictConstants.Scopes.Roles
-                }.Intersect(request.GetScopes()));
+                }.Intersect(request.GetScopes()).ToList();
+
+                // Add permission claims to scope
+                foreach (var claim in permissionClaims)
+                {
+                    scopes.Add(claim.Value);
+                }
+
+                ticket.SetScopes(scopes);
             }
 
             ticket.SetResources(_appOptions.Jwt.Audience);

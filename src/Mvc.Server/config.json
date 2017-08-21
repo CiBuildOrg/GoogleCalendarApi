@@ -10,8 +10,8 @@
     "Audience": "http://localhost:5000",
     "Authority": "http://localhost:5000/",
     "SecretKey": "secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret",
-    "AccessTokenLifetime": 3800,
-    "IdentityTokenLifetime": 3800,
+    "AccessTokenLifetime": 4800,
+    "IdentityTokenLifetime": 4800,
     "RefreshTokenLifetime": 14800
   },
   "Auth": {
