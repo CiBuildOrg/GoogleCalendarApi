@@ -19,7 +19,6 @@ using OpenIddict.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Mvc.Server.Filters;
@@ -28,7 +27,6 @@ using Mvc.Server.Options;
 using Mvc.Server.Policies;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
-
 
 namespace Mvc.Server
 {
