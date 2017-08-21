@@ -22,7 +22,6 @@ using Mvc.Server.Filters;
 using Mvc.Server.Helpers;
 using Mvc.Server.Options;
 using Mvc.Server.Policies;
-using Mvc.Server.ViewModels;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
 

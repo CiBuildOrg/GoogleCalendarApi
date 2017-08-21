@@ -15,7 +15,6 @@ using Microsoft.Extensions.Options;
 using Mvc.Server.Helpers;
 using Mvc.Server.Models;
 using Mvc.Server.Options;
-using Mvc.Server.ViewModels;
 using OpenIddict.Core;
 
 namespace Mvc.Server.Controllers

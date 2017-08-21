@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,9 +5,6 @@ namespace Mvc.Server.Policies
 {
     public static class PermissionClaims
     {
-
-
-
         public const string ReadUser = "user:read";
         public const string ReadUsers = "user:readAll";
         public const string CreateUser = "user:create";
