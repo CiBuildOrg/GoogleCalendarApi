@@ -1,10 +1,13 @@
 using System;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AspNet.Security.OAuth.Validation;
 using AspNet.Security.OpenIdConnect.Primitives;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +19,7 @@ using OpenIddict.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Mvc.Server.Filters;
@@ -31,7 +35,7 @@ namespace Mvc.Server
     public class Startup
     {
         public IConfigurationRoot Configuration { get; set; }
-
+        
         public Startup(IHostingEnvironment env)
         {
             var configuration = new ConfigurationBuilder()
@@ -55,10 +59,29 @@ namespace Mvc.Server
                 options.SwaggerDoc("v1", new Info { Title = "My Web API", Version = "v1" });
             });
 
-            // Add MVC Core
+            services.AddAuthentication(OAuthValidationDefaults.AuthenticationScheme)
+                .AddCookie(o => o.Events = new CookieAuthenticationEvents
+                {
+                    OnRedirectToLogin = ctx =>
+                    {
+                        if (ctx.Request.Path.StartsWithSegments("/api") &&
+                            ctx.Response.StatusCode == (int)HttpStatusCode.OK)
+                        {
+                            ctx.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                        }
+                        else
+                        {
+                            ctx.Response.Redirect(ctx.RedirectUri);
+                        }
+                        return Task.FromResult(0);
+                    }
+                });
+
+            //Add MVC Core
             services.AddMvcCore(
                     options =>
                     {
+
                         // Add global authorization filter 
                         var policy = new AuthorizationPolicyBuilder()
                             .RequireAuthenticatedUser()
@@ -94,7 +117,6 @@ namespace Mvc.Server
             {
                 // Configure the context to use Microsoft SQL Server.
                 options.UseSqlServer(opts.ConnectionStrings.SqlServerProvider);
-
                 // Register the entity sets needed by OpenIddict.
                 // Note: use the generic overload if you need
                 // to replace the default OpenIddict entities.
@@ -199,16 +221,12 @@ namespace Mvc.Server
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            
             app.UseStaticFiles();
 
             app.UseStatusCodePagesWithReExecute("/error");
-
             app.UseAuthentication();
-
-
             app.UseExampleMiddleware();
-
             app.UseMvcWithDefaultRoute();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.

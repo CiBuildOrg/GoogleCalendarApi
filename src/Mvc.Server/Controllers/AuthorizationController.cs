@@ -184,8 +184,14 @@ namespace Mvc.Server.Controllers
                         OpenIdConnectConstants.Destinations.AccessToken,
                         OpenIdConnectConstants.Destinations.IdentityToken);
                     var role = await _roleManager.FindByNameAsync(roleName);
-                    // Get all the permission claims of the role
-                    permissionClaims.AddRange(await _roleManager.GetClaimsAsync(role));
+
+                    foreach (var claim in await _roleManager.GetClaimsAsync(role))
+                    {
+                        if (!permissionClaims.Contains(claim))
+                        {
+                            permissionClaims.Add(claim);
+                        }
+                    }
                 }
 
                 var scopes = new List<string>

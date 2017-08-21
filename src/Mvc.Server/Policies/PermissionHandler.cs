@@ -7,7 +7,7 @@ namespace Mvc.Server.Policies
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
         {
-            if (context.User.IsInRole("admin"))
+            if (context.User.IsInRole("Admin"))
             {
                 System.Console.WriteLine("Admin user, don't verify");
                 context.Succeed(requirement);
