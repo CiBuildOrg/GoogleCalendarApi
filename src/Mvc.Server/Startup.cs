@@ -276,6 +276,33 @@ namespace Mvc.Server
                     await userManager.AddToRolesAsync(applicationUser, new[] { "Admin", "User" });
                 }
 
+                if (await userManager.FindByEmailAsync("cioclea.doru2@gmail.com") == null)
+                {
+                    // create the user 
+                    var applicationUser = new ApplicationUser
+                    {
+                        Email = "cioclea.doru2@gmail.com",
+                        EmailConfirmed = true,
+                        Id = Guid.NewGuid().ToString(),
+                        UserName = "doruc1"
+                    };
+
+                    var result = await userManager.CreateAsync(applicationUser, "secret");
+                    if (!result.Succeeded)
+                    {
+                        StringBuilder builder = new StringBuilder();
+                        foreach (var err in result.Errors)
+                        {
+                            builder.AppendLine(err.Description);
+                        }
+
+                        throw new Exception(builder.ToString());
+                    }
+
+                    await userManager.SetLockoutEnabledAsync(applicationUser, false);
+                    await userManager.AddToRolesAsync(applicationUser, new[] {  "User" });
+                }
+
                 if (await manager.FindByClientIdAsync("mvc", cancellationToken) == null)
                 {
                     var application = new OpenIddictApplication

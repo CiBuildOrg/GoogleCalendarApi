@@ -15,9 +15,17 @@ namespace Mvc.Server.Controllers
         {
         }
 
-        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme)]
-        [HttpGet("message")]
-        public async Task<IActionResult> GetMessage()
+        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme, Roles = "Admin")]
+        [HttpGet("messageadmin")]
+        public async Task<IActionResult> GetMessageAdmin()
+        {
+            var user = await CurrentUser();
+            return Content($"{user.UserName} has been successfully authenticated.");
+        }
+
+        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme, Roles = "User")]
+        [HttpGet("messageuser")]
+        public async Task<IActionResult> GetMessageUser()
         {
             var user = await CurrentUser();
             return Content($"{user.UserName} has been successfully authenticated.");

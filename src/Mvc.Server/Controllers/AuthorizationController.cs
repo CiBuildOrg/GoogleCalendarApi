@@ -39,7 +39,7 @@ namespace Mvc.Server.Controllers
             _identityOptions = identityOptions;
             _signInManager = signInManager;
             _userManager = userManager;
-            this._roleManager = roleManager;
+            _roleManager = roleManager;
             _context = context;
             _appOptions = appOptions.Value;
         }
@@ -198,10 +198,8 @@ namespace Mvc.Server.Controllers
                 }.Intersect(request.GetScopes()).ToList();
 
                 // Add permission claims to scope
-                foreach (var claim in permissionClaims)
-                {
-                    scopes.Add(claim.Value);
-                }
+
+                scopes.AddRange(permissionClaims.Select(claim => claim.Value));
 
                 ticket.SetScopes(scopes);
             }
