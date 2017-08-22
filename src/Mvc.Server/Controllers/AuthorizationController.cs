@@ -166,7 +166,7 @@ namespace Mvc.Server.Controllers
             var ticket = new AuthenticationTicket(principal, properties,
                 OpenIdConnectServerDefaults.AuthenticationScheme);
 
-            if (!request.IsAuthorizationCodeGrantType() && !request.IsRefreshTokenGrantType())
+            if (!request.IsAuthorizationCodeGrantType())
             {
                 // Set the list of scopes granted to the client application.
                 // Note: the offline_access scope must be granted

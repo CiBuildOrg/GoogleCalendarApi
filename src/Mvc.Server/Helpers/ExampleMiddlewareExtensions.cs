@@ -6,7 +6,7 @@ namespace Mvc.Server.Helpers
     {
         public static IApplicationBuilder UseExampleMiddleware(this IApplicationBuilder builder)
         {
-            return builder.UseMiddleware<ExampleMiddleware>();
+            return builder.UseMiddleware<CustomErrorMiddleware>();
         }
     }
 }

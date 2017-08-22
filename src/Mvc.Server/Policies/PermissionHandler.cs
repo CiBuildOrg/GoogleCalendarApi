@@ -14,7 +14,8 @@ namespace Mvc.Server.Policies
                 return Task.CompletedTask;
             }
             // All the role permission claims are present in the jwt scope claim 
-            if (context.User.HasClaim(c => c.Type == "scope" && c.Value.Contains(requirement.Permission)))
+            if (context.User.HasClaim(c => c.Type == "scope" && c.Value.Contains(requirement.Permission))
+                || context.User.HasClaim(x => x.Type == "permission" && x.Value.Contains(requirement.Permission)))
             {
                 System.Console.WriteLine("User is not admin but has required permission: " + requirement.Permission);
                 context.Succeed(requirement);

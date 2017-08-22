@@ -65,6 +65,7 @@ namespace Mvc.Server
                         if (ctx.Request.Path.StartsWithSegments("/api") &&
                             ctx.Response.StatusCode == (int)HttpStatusCode.OK)
                         {
+                            Console.WriteLine("HEIHEIHEIHEIHEIHEIHEIHEIEHI");
                             ctx.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                         }
                         else
