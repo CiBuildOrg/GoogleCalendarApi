@@ -19,6 +19,7 @@ using OpenIddict.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Mvc.Server.Filters;
@@ -109,8 +110,26 @@ namespace Mvc.Server
                 })
                 .AddDataAnnotations()
                 .AddCors()
-                .AddApiExplorer();
-            services.AddMvc();
+                .AddApiExplorer().ConfigureApplicationPartManager(manager =>
+                {
+                    var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
+                    if (oldMetadataReferenceFeatureProvider != null)
+                    {
+                        manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
+                        manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
+                    }
+                }); 
+
+            services.AddMvc().ConfigureApplicationPartManager(manager =>
+            {
+                var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
+                if (oldMetadataReferenceFeatureProvider != null)
+                {
+                    manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
+                    manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
+                }
+            }); 
+
             services.AddScoped<IAuthorizationHandler, PermissionHandler>();
             services.AddDbContext<ApplicationDbContext>(options =>
             {
