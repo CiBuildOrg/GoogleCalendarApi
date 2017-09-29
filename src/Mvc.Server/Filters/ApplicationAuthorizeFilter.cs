@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using AspNet.Security.OAuth.Validation;
@@ -19,6 +20,9 @@ namespace Mvc.Server.Filters
     /// <see cref="T:Microsoft.AspNetCore.Authorization.AuthorizationPolicy" />. MVC recognizes the <see cref="T:Microsoft.AspNetCore.Authorization.AuthorizeAttribute" /> and adds an instance of
     /// this filter to the associated action or controller.
     /// </summary>
+    [SuppressMessage("ReSharper", "ClassWithVirtualMembersNeverInherited.Global")]
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class ApplicationAuthorizeFilter : IAsyncAuthorizationFilter, IFilterFactory
     {
         /// <summary>

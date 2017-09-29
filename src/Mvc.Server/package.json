@@ -1,6 +1,9 @@
 {
-  "name": "ASP.NET",
-  "version": "0.0.0",
+  "name": "starter-resource-server",
+  "description": "resource server",
+  "repository": "repo-goes-here",
+  "license": "MIT",
+  "version": "0.1.0",
   "devDependencies": {
     "gulp": "3.8.11",
     "gulp-concat": "2.5.2",

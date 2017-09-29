@@ -294,7 +294,7 @@ namespace Mvc.Server
 
                     foreach (var claim in PermissionClaims.GetAdminClaims())
                     {
-                        await roleManager.AddClaimAsync(adminRole, new Claim(CustomClaimTypes.Permission, claim));
+                        await roleManager.AddClaimAsync(adminRole, new Claim(ApplicationConstants.PermissionClaimName, claim));
                     }
                 }
 
@@ -314,7 +314,7 @@ namespace Mvc.Server
 
                     foreach (var claim in PermissionClaims.GetAppUserClaims())
                     {
-                        await roleManager.AddClaimAsync(userRole, new Claim(CustomClaimTypes.Permission, claim));
+                        await roleManager.AddClaimAsync(userRole, new Claim(ApplicationConstants.PermissionClaimName, claim));
                     }
                 }
 

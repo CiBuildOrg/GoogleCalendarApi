@@ -1,27 +1,31 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Mvc.Server.Policies
 {
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
         {
             if (context.User.IsInRole("Admin"))
             {
-                System.Console.WriteLine("Admin user, don't verify");
+                // user is an admin so they're automatically allowed in
                 context.Succeed(requirement);
                 return Task.CompletedTask;
             }
+
             // All the role permission claims are present in the jwt scope claim 
             if (context.User.HasClaim(c => c.Type == "scope" && c.Value.Contains(requirement.Permission))
                 || context.User.HasClaim(x => x.Type == "permission" && x.Value.Contains(requirement.Permission)))
             {
-                System.Console.WriteLine("User is not admin but has required permission: " + requirement.Permission);
+                // user is allowed 
                 context.Succeed(requirement);
                 return Task.CompletedTask;
             }
-            System.Console.WriteLine("User is forbidden");
+
+            // user is forbidden
             context.Fail();
             return Task.CompletedTask;
         }

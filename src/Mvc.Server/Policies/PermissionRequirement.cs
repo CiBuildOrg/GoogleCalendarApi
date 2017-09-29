@@ -4,7 +4,7 @@ namespace Mvc.Server.Policies
 {
     public class PermissionRequirement : IAuthorizationRequirement
     {
-        public string Permission;
+        public readonly string Permission;
 
         public PermissionRequirement(string permission)
         {

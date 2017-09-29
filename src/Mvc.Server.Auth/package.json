@@ -1,6 +1,9 @@
 {
-  "name": "myproject",
-  "version": "1.0.0",
+  "name": "starter-auth",
+  "version": "0.1.0",
+  "description": "resource server",
+  "repository": "repo-goes-here",
+  "license": "MIT",
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.1",

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -10,20 +11,22 @@ namespace Mvc.Server.Filters
     public class CustomExceptionFilterAttribute : ExceptionFilterAttribute
     {
         private readonly ILogger _logger;
+        private readonly IHostingEnvironment _hostingEnvironment;
 
         [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
-        public CustomExceptionFilterAttribute(ILogger<CustomExceptionFilterAttribute> logger)
+        public CustomExceptionFilterAttribute(ILogger<CustomExceptionFilterAttribute> logger, IHostingEnvironment hostingEnvironment)
         {
             _logger = logger;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         public override void OnException(ExceptionContext context)
         {
             // request the IHostingEnvironment to enable conditional behavior such as returning all stacktrace on clients.  
-            //if (_hostingEnvironment.IsDevelopment())
-            //{
-            //    return;
-            //}
+            if (_hostingEnvironment.IsDevelopment())
+            {
+                return;
+            }
 
             const string message = "Oops! Something is broken, we are looking into it";
             _logger.LogError(0, context.Exception, message);

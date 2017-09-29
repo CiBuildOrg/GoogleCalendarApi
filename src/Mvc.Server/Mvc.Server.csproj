@@ -26,7 +26,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Certificate.pfx" />
 
     <None Include="config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -68,6 +67,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Mvc.Server.Core\Mvc.Server.Core.csproj" />
+    <ProjectReference Include="..\Mvc.Server.Database\Mvc.Server.Database.csproj" />
+    <ProjectReference Include="..\Mvc.Server.Exceptions\Mvc.Server.Exceptions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

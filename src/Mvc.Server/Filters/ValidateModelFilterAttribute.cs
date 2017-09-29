@@ -20,7 +20,7 @@ namespace Mvc.Server.Filters
                     {
                         // improve code to remove check on hard coded string - "required"
                         // assuming required validation error message contains word "required"
-                        return model.Value.Errors.FirstOrDefault().ErrorMessage.Contains("required");
+                        return model.Value.Errors.First().ErrorMessage.Contains("required");
                     }
                     return false;
                 });

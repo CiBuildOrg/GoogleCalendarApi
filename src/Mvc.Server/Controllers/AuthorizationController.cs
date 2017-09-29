@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Mvc.Server.Core;
 using Mvc.Server.Helpers;
 using Mvc.Server.Models;
 using Mvc.Server.Options;
@@ -249,7 +250,7 @@ namespace Mvc.Server.Controllers
         private void AddUserIdClaim(AuthenticationTicket ticket, ApplicationUser user)
         {
             var claimsIdentity = ticket.Principal.Identity as ClaimsIdentity;
-            claimsIdentity.AddClaim(CustomClaims.UserIdClaim, user.Id, OpenIdConnectConstants.Destinations.AccessToken);
+            claimsIdentity.AddClaim(ApplicationConstants.UserIdClaim, user.Id, OpenIdConnectConstants.Destinations.AccessToken);
         }
     }
 }

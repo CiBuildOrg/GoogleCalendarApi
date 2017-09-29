@@ -1,15 +1,15 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Mvc.Server.Core;
 using Mvc.Server.Exceptions;
-using Mvc.Server.Helpers;
 using Mvc.Server.Models;
 
 namespace Mvc.Server.Controllers.Base
 {
     public abstract class BaseController : Controller
     {
-        protected UserManager<ApplicationUser> UserManager { get; set; }
+        protected UserManager<ApplicationUser> UserManager { get; }
 
         protected BaseController(UserManager<ApplicationUser> userManager)
         {
@@ -18,7 +18,7 @@ namespace Mvc.Server.Controllers.Base
 
         private async Task<ApplicationUser> GetCurrentUser()
         {
-            var userId = User.FindFirst(CustomClaims.UserIdClaim).Value;
+            var userId = User.FindFirst(ApplicationConstants.UserIdClaim).Value;
             var user = (await UserManager.FindByIdAsync(userId));
             if (user == null)
             {

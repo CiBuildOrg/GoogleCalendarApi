@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Models;
 
 namespace Mvc.Server.Models
 {
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
         public ApplicationDbContext(DbContextOptions options)

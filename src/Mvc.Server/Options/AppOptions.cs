@@ -1,7 +1,9 @@
-﻿using Mvc.Server.ViewModels;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace Mvc.Server.Options
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
     public class AppOptions
     {
         public Application Application { get; set; }
