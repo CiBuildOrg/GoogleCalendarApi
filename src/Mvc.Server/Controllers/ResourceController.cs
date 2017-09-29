@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Mvc.Server.Controllers.Base;
-using Mvc.Server.Models;
 using Mvc.Server.Policies;
+using MvcServer.Entities;
 
 namespace Mvc.Server.Controllers
 {

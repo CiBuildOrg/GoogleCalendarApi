@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Mvc.Server.Core;
 using Mvc.Server.Exceptions;
-using Mvc.Server.Models;
+using MvcServer.Entities;
 
 namespace Mvc.Server.Controllers.Base
 {

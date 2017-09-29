@@ -13,9 +13,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Mvc.Server.Core;
-using Mvc.Server.Helpers;
 using Mvc.Server.Models;
 using Mvc.Server.Options;
+using MvcServer.Entities;
 using OpenIddict.Core;
 
 namespace Mvc.Server.Controllers

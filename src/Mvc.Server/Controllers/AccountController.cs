@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Mvc.Server.Models;
 using Mvc.Server.ViewModels.Account;
+using MvcServer.Entities;
 
 namespace Mvc.Server.Controllers
 {

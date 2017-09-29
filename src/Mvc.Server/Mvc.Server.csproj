@@ -69,6 +69,7 @@
     <ProjectReference Include="..\Mvc.Server.Core\Mvc.Server.Core.csproj" />
     <ProjectReference Include="..\Mvc.Server.Database\Mvc.Server.Database.csproj" />
     <ProjectReference Include="..\Mvc.Server.Exceptions\Mvc.Server.Exceptions.csproj" />
+    <ProjectReference Include="..\MvcServer.Entities\MvcServer.Entities.csproj" />
   </ItemGroup>
 
   <ItemGroup>
