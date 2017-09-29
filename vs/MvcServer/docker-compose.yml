@@ -6,3 +6,9 @@ services:
     build:
       context: ./../../src/Mvc.Server.Auth
       dockerfile: Dockerfile
+
+  mvc.server:
+    image: mvc.server
+    build:
+      context: ./../../src/Mvc.server
+      dockerfile: Dockerfile
