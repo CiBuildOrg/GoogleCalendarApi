@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -22,6 +23,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Mvc.Server.Core;
 using Mvc.Server.Filters;
 using Mvc.Server.Helpers;
 using Mvc.Server.Options;
@@ -31,9 +33,12 @@ using Swashbuckle.AspNetCore.Swagger;
 
 namespace Mvc.Server
 {
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class Startup
     {
-        public IConfigurationRoot Configuration { get; set; }
+        public IConfigurationRoot Configuration { get; }
         
         public Startup(IHostingEnvironment env)
         {
@@ -55,7 +60,7 @@ namespace Mvc.Server
             // Add Swagger generator
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new Info { Title = "My Web API", Version = "v1" });
+                options.SwaggerDoc("v1", new Info { Title = "Api Starter", Version = "v1" });
             });
 
             services.AddAuthentication(OAuthValidationDefaults.AuthenticationScheme)
@@ -66,13 +71,13 @@ namespace Mvc.Server
                         if (ctx.Request.Path.StartsWithSegments("/api") &&
                             ctx.Response.StatusCode == (int)HttpStatusCode.OK)
                         {
-                            Console.WriteLine("HEIHEIHEIHEIHEIHEIHEIHEIEHI");
                             ctx.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                         }
                         else
                         {
                             ctx.Response.Redirect(ctx.RedirectUri);
                         }
+
                         return Task.FromResult(0);
                     }
                 });
@@ -113,21 +118,19 @@ namespace Mvc.Server
                 .AddApiExplorer().ConfigureApplicationPartManager(manager =>
                 {
                     var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
-                    if (oldMetadataReferenceFeatureProvider != null)
-                    {
-                        manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
-                        manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
-                    }
+                    if (oldMetadataReferenceFeatureProvider == null) return;
+
+                    manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
+                    manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
                 }); 
 
             services.AddMvc().ConfigureApplicationPartManager(manager =>
             {
                 var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
-                if (oldMetadataReferenceFeatureProvider != null)
-                {
-                    manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
-                    manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
-                }
+                if (oldMetadataReferenceFeatureProvider == null) return;
+
+                manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
+                manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
             }); 
 
             services.AddScoped<IAuthorizationHandler, PermissionHandler>();
@@ -161,13 +164,12 @@ namespace Mvc.Server
                 options.ClaimsIdentity.UserIdClaimType = OpenIdConnectConstants.Claims.Subject;
                 options.ClaimsIdentity.RoleClaimType = OpenIdConnectConstants.Claims.Role;
 
-
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 1;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireLowercase = false;
-                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvxyz1234567890!@#$%^&*()_+<>:|";
+                options.User.AllowedUserNameCharacters = ApplicationConstants.AllowedUsernameCharacters;
                 options.User.RequireUniqueEmail = false;
                 options.SignIn.RequireConfirmedEmail = false;
                 options.SignIn.RequireConfirmedPhoneNumber = false;

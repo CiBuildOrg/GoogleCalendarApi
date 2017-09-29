@@ -3,11 +3,26 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+    <TypeScriptEnabled>false</TypeScriptEnabled>
   </PropertyGroup>
 
+  <!--
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net461|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETCOREAPP2_0</DefineConstants>
+    <OutputPath>bin\Debug\netcoreapp2.0\</OutputPath>
+    <DocumentationFile>bin\Debug\netcoreapp2.0\Mvc.Server.xml</DocumentationFile>
+    <Optimize>false</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+-->
+
   <PropertyGroup>
-    <TypeScriptEnabled>false</TypeScriptEnabled>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <!--<DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>-->
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netcoreapp2.0\Mvc.Server.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -53,6 +68,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0" />
     <PackageReference Include="SwashBuckle.AspNetCore.MicrosoftExtensions" Version="0.2.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Mvc.Server.Core\Mvc.Server.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
