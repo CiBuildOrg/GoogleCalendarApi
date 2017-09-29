@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvc.Server.Core", "..\..\sr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Auth", "Auth", "{573216B5-8EAC-49A8-BFC0-917BE7B17BE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mvc.Server.Auth", "..\..\src\Mvc.Server.Auth\Mvc.Server.Auth.csproj", "{1FB756EB-0C1A-459B-B997-7A844988777A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvc.Server.Auth", "..\..\src\Mvc.Server.Auth\Mvc.Server.Auth.csproj", "{1FB756EB-0C1A-459B-B997-7A844988777A}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{53820771-F717-41D8-8319-9EBB5F51B63B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mvc.Server.Database", "..\..\src\Mvc.Server.Database\Mvc.Server.Database.csproj", "{03E68FED-2C38-4685-9DC1-6FF2769B0BB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{53820771-F717-41D8-8319-9EBB5F51B63B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53820771-F717-41D8-8319-9EBB5F51B63B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53820771-F717-41D8-8319-9EBB5F51B63B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03E68FED-2C38-4685-9DC1-6FF2769B0BB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03E68FED-2C38-4685-9DC1-6FF2769B0BB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03E68FED-2C38-4685-9DC1-6FF2769B0BB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03E68FED-2C38-4685-9DC1-6FF2769B0BB0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
