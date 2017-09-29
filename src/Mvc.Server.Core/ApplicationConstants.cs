@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Mvc.Server.Core
+﻿namespace Mvc.Server.Core
 {
     public static class ApplicationConstants
     {

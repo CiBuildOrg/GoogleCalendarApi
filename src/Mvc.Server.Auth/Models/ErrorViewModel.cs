@@ -1,5 +1,3 @@
-using System;
-
 namespace Mvc.Server.Auth.Models
 {
     public class ErrorViewModel
