@@ -4,4 +4,11 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Configuration\" />
+    <Folder Include="Internal\" />
+    <Folder Include="Response\" />
+    <Folder Include="Request\" />
+  </ItemGroup>
+
 </Project>

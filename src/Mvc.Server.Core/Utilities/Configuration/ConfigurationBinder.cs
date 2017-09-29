@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 
-namespace Mvc.Server.Options
+namespace Mvc.Server.Core.Utilities.Configuration
 {
     /// <summary>
     /// Static helper class that allows binding strongly typed objects to configuration values.
@@ -39,7 +39,7 @@ namespace Mvc.Server.Options
         /// <param name="configuration">The configuration instance to bind.</param>
         /// <param name="type">The type of the new instance to bind.</param>
         /// <returns>The new instance if successful, null otherwise.</returns>
-        public static object Get(this IConfiguration configuration, Type type)
+        private static object Get(this IConfiguration configuration, Type type)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
@@ -58,59 +58,6 @@ namespace Mvc.Server.Options
             if (instance == null)
                 return;
             BindInstance(instance.GetType(), instance, configuration);
-        }
-
-        /// <summary>
-        /// Extracts the value with the specified key and converts it to type T.
-        /// </summary>
-        /// <typeparam name="T">The type to convert the value to.</typeparam>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="key">The configuration key for the value to convert.</param>
-        /// <returns>The converted value.</returns>
-        public static T GetValue<T>(this IConfiguration configuration, string key)
-        {
-            return configuration.GetValue(key, default(T));
-        }
-
-        /// <summary>
-        /// Extracts the value with the specified key and converts it to type T.
-        /// </summary>
-        /// <typeparam name="T">The type to convert the value to.</typeparam>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="key">The configuration key for the value to convert.</param>
-        /// <param name="defaultValue">The default value to use if no value is found.</param>
-        /// <returns>The converted value.</returns>
-        public static T GetValue<T>(this IConfiguration configuration, string key, T defaultValue)
-        {
-            return (T)configuration.GetValue(typeof(T), key, defaultValue);
-        }
-
-        /// <summary>
-        /// Extracts the value with the specified key and converts it to the specified type.
-        /// </summary>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="type">The type to convert the value to.</param>
-        /// <param name="key">The configuration key for the value to convert.</param>
-        /// <returns>The converted value.</returns>
-        public static object GetValue(this IConfiguration configuration, Type type, string key)
-        {
-            return configuration.GetValue(type, key, null);
-        }
-
-        /// <summary>
-        /// Extracts the value with the specified key and converts it to the specified type.
-        /// </summary>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="type">The type to convert the value to.</param>
-        /// <param name="key">The configuration key for the value to convert.</param>
-        /// <param name="defaultValue">The default value to use if no value is found.</param>
-        /// <returns>The converted value.</returns>
-        public static object GetValue(this IConfiguration configuration, Type type, string key, object defaultValue)
-        {
-            var str = configuration.GetSection(key).Value;
-            if (str != null)
-                return ConvertValue(type, str);
-            return defaultValue;
         }
 
         private static void BindNonScalar(this IConfiguration configuration, object instance)
@@ -175,7 +122,7 @@ namespace Mvc.Server.Options
             return null;
         }
 
-        internal static object BindInstance(Type type, object instance, IConfiguration config)
+        private static object BindInstance(Type type, object instance, IConfiguration config)
         {
             if (ReferenceEquals(type, typeof(IConfigurationSection)))
                 return config;
