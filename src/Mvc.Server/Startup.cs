@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Mvc.Server.Models;
 using OpenIddict.Core;
 using OpenIddict.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,14 +23,15 @@ using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Mvc.Server.Core;
+using Mvc.Server.Database;
 using Mvc.Server.DataObjects.Configuration;
-using Mvc.Server.Helpers;
 using Mvc.Server.Infrastructure.Filters;
 using Mvc.Server.Policies;
 using MvcServer.Entities;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
 using Mvc.Server.Infrastructure.Attributes;
+using Mvc.Server.Infrastructure.Utils;
 
 namespace Mvc.Server
 {

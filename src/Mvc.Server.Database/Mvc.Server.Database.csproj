@@ -6,7 +6,14 @@
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.Validation" Version="1.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.0" />
     <PackageReference Include="OpenIddict" Version="2.0.0-preview1-0643" />
+    <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="2.0.0-preview1-0643" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MvcServer.Entities\MvcServer.Entities.csproj" />
   </ItemGroup>
 
 </Project>

@@ -13,8 +13,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Mvc.Server.Core;
+using Mvc.Server.Database;
 using Mvc.Server.DataObjects.Configuration;
-using Mvc.Server.Models;
 using MvcServer.Entities;
 using OpenIddict.Core;
 

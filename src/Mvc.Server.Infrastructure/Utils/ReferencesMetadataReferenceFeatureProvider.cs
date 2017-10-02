@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyModel;
 
-namespace Mvc.Server.Helpers
+namespace Mvc.Server.Infrastructure.Utils
 {
     public class ReferencesMetadataReferenceFeatureProvider : IApplicationFeatureProvider<MetadataReferenceFeature>
     {

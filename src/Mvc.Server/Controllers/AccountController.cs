@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Mvc.Server.Database;
 using Mvc.Server.DataObjects.Request;
-using Mvc.Server.Models;
 using MvcServer.Entities;
 
 namespace Mvc.Server.Controllers

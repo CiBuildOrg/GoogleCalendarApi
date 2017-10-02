@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MvcServer.Entities;
 using OpenIddict.Models;
 
-namespace Mvc.Server.Models
+namespace Mvc.Server.Database
 {
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
