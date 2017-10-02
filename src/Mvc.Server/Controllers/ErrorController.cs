@@ -1,6 +1,6 @@
 ﻿using AspNet.Security.OpenIdConnect.Primitives;
 using Microsoft.AspNetCore.Mvc;
-using Mvc.Server.ViewModels.Shared;
+using Mvc.Server.DataObjects.Response;
 
 namespace Mvc.Server.Controllers
 {

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Mvc.Server.Options
+namespace Mvc.Server.DataObjects.Configuration
 {
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]

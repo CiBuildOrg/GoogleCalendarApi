@@ -1,12 +1,10 @@
-﻿
-
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Mvc.Server.DataObjects.Request;
 using Mvc.Server.Models;
-using Mvc.Server.ViewModels.Account;
 using MvcServer.Entities;
 
 namespace Mvc.Server.Controllers
@@ -56,7 +54,7 @@ namespace Mvc.Server.Controllers
                     return RedirectToLocal(returnUrl);
                 }
                
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");   
                 return View(model);
             }
 

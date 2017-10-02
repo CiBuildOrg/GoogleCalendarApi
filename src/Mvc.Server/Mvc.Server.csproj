@@ -68,6 +68,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Mvc.Server.Core\Mvc.Server.Core.csproj" />
     <ProjectReference Include="..\Mvc.Server.Database\Mvc.Server.Database.csproj" />
+    <ProjectReference Include="..\Mvc.Server.DataObjects\Mvc.Server.DataObjects.csproj" />
     <ProjectReference Include="..\Mvc.Server.Exceptions\Mvc.Server.Exceptions.csproj" />
     <ProjectReference Include="..\MvcServer.Entities\MvcServer.Entities.csproj" />
   </ItemGroup>
@@ -82,6 +83,11 @@
     <Content Update="package.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ViewModels\Account\" />
+    <Folder Include="ViewModels\Shared\" />
   </ItemGroup>
 
 </Project>

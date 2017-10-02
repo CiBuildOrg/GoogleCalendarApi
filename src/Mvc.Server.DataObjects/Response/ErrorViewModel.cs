@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Mvc.Server.ViewModels.Shared
+namespace Mvc.Server.DataObjects.Response
 {
     public class ErrorViewModel
     {
