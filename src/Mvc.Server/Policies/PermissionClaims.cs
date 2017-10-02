@@ -1,14 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
+using Mvc.Server.Core;
 
 namespace Mvc.Server.Policies
 {
     public static class PermissionClaims
     {
-        public const string MessageAdmin = "message:admin";
-        public const string MessageUser = "message:user";
-
-        private static List<string> GetAll()
+        private static IEnumerable<string> GetAll()
         {
             var type = typeof(PermissionClaims);
             return type.GetFields().Select(permissionClaim => permissionClaim.GetValue(null).ToString()).ToList();
@@ -21,7 +19,7 @@ namespace Mvc.Server.Policies
 
         public static IEnumerable<string> GetAppUserClaims()
         {
-            return GetAll().Where(x => x == MessageUser).ToList();
+            return GetAll().Where(x => x == ApplicationConstants.MessageUserPermissionClaim).ToList();
         }
     }
 }

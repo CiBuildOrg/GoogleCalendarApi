@@ -85,9 +85,4 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ViewModels\Account\" />
-    <Folder Include="ViewModels\Shared\" />
-  </ItemGroup>
-
 </Project>

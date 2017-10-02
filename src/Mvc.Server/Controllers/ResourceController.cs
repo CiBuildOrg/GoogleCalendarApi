@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Mvc.Server.Controllers.Base;
-using Mvc.Server.Policies;
+using Mvc.Server.Core;
 using MvcServer.Entities;
 
 namespace Mvc.Server.Controllers
@@ -16,7 +16,7 @@ namespace Mvc.Server.Controllers
         {
         }
 
-        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme, Policy = PermissionClaims.MessageAdmin)]
+        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme, Policy = ApplicationConstants.MessageAdminPermissionClaim)]
         [HttpGet("messageadmin")]
         public async Task<IActionResult> GetMessageAdmin()
         {
@@ -24,7 +24,7 @@ namespace Mvc.Server.Controllers
             return Content($"{user.UserName} has been successfully authenticated.");
         }
 
-        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme, Policy = PermissionClaims.MessageUser)]
+        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme, Policy = ApplicationConstants.MessageUserPermissionClaim)]
         [HttpGet("messageuser")]
         public async Task<IActionResult> GetMessageUser()
         {
