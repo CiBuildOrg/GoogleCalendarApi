@@ -16,7 +16,7 @@ namespace Mvc.Server.Controllers
         {
         }
 
-        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme, Policy = ApplicationConstants.MessageAdminPermissionClaim)]
+        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme, Policy = Permissions.MessageAdminPermissionClaim)]
         [HttpGet("messageadmin")]
         public async Task<IActionResult> GetMessageAdmin()
         {
@@ -24,7 +24,7 @@ namespace Mvc.Server.Controllers
             return Content($"{user.UserName} has been successfully authenticated.");
         }
 
-        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme, Policy = ApplicationConstants.MessageUserPermissionClaim)]
+        [Authorize(AuthenticationSchemes = OAuthValidationDefaults.AuthenticationScheme, Policy = Permissions.MessageUserPermissionClaim)]
         [HttpGet("messageuser")]
         public async Task<IActionResult> GetMessageUser()
         {

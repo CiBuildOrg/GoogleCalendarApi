@@ -5,11 +5,14 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Mvc.Server.DataObjects.Response;
 using Mvc.Server.Filters;
 using Newtonsoft.Json;
 
 namespace Mvc.Server.Helpers
 {
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class CustomErrorMiddleware
     {
         private const string UnauthorizedMessage = "You are not authorized to access this endpoint";
@@ -36,7 +39,6 @@ namespace Mvc.Server.Helpers
 
         public async Task Invoke(HttpContext context)
         {
-            _logger.LogInformation("example middleware entry : " + context.Request.Path);
             var originBody = context.Response.Body;
 
             var newBody = new MemoryStream();
@@ -51,6 +53,7 @@ namespace Mvc.Server.Helpers
             {
                 if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
                 {
+                    _logger.LogInformation("Rejecting request with status forbidden : " + context.Request.Path);
                     var newJson = JsonConvert.SerializeObject(new CustomResponseError
                     {
                         Success = false,
@@ -62,6 +65,7 @@ namespace Mvc.Server.Helpers
                 }
                 else if (context.Response.StatusCode == (int) HttpStatusCode.Unauthorized)
                 {
+                    _logger.LogInformation("Rejecting request with status unauthorized : " + context.Request.Path);
                     var newJson = JsonConvert.SerializeObject(new CustomResponseError
                     {
                         Success = false,
@@ -75,8 +79,6 @@ namespace Mvc.Server.Helpers
             }
             else
             await context.Response.WriteAsync(json);
-
-            _logger.LogInformation("example middleware exit.");
         }
     }
 }

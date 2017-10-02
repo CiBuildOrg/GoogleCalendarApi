@@ -6,9 +6,9 @@ namespace Mvc.Server.Policies
 {
     public static class PermissionClaims
     {
-        private static IEnumerable<string> GetAll()
+        public static IEnumerable<string> GetAll()
         {
-            var type = typeof(PermissionClaims);
+            var type = typeof(Permissions);
             return type.GetFields().Select(permissionClaim => permissionClaim.GetValue(null).ToString()).ToList();
         }
 
@@ -19,7 +19,7 @@ namespace Mvc.Server.Policies
 
         public static IEnumerable<string> GetAppUserClaims()
         {
-            return GetAll().Where(x => x == ApplicationConstants.MessageUserPermissionClaim).ToList();
+            return GetAll().Where(x => x == Permissions.MessageUserPermissionClaim).ToList();
         }
     }
 }

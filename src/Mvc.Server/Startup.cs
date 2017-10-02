@@ -28,6 +28,7 @@ using Mvc.Server.Core.Utilities.Configuration;
 using Mvc.Server.DataObjects.Configuration;
 using Mvc.Server.Filters;
 using Mvc.Server.Helpers;
+using Mvc.Server.Infrastructure.Filters;
 using Mvc.Server.Policies;
 using MvcServer.Entities;
 using Serilog;
@@ -108,11 +109,9 @@ namespace Mvc.Server
                 .AddAuthorization(options =>
                 {
                     // Create a policy for each permission
-                    Type type = typeof(PermissionClaims);
-                    foreach (var permissionClaim in type.GetFields())
+                    foreach (var permissionClaim in PermissionClaims.GetAll())
                     {
-                        var permissionValue = permissionClaim.GetValue(null).ToString();
-                        options.AddPolicy(permissionValue, policy => policy.Requirements.Add(new PermissionRequirement(permissionValue)));
+                        options.AddPolicy(permissionClaim, policy => policy.Requirements.Add(new PermissionRequirement(permissionClaim)));
                     }
                 })
                 .AddDataAnnotations()
@@ -248,7 +247,7 @@ namespace Mvc.Server
 
             app.UseStatusCodePagesWithReExecute("/error");
             app.UseAuthentication();
-            app.UseExampleMiddleware();
+            //app.UseExampleMiddleware();
             app.UseMvcWithDefaultRoute();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.

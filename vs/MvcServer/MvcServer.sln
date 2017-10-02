@@ -13,13 +13,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvc.Server.Auth", "..\..\sr
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{53820771-F717-41D8-8319-9EBB5F51B63B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mvc.Server.Database", "..\..\src\Mvc.Server.Database\Mvc.Server.Database.csproj", "{03E68FED-2C38-4685-9DC1-6FF2769B0BB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvc.Server.Database", "..\..\src\Mvc.Server.Database\Mvc.Server.Database.csproj", "{03E68FED-2C38-4685-9DC1-6FF2769B0BB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mvc.Server.Exceptions", "..\..\src\Mvc.Server.Exceptions\Mvc.Server.Exceptions.csproj", "{4C6C3B06-B21E-4C02-8493-DCB44CF2C037}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvc.Server.Exceptions", "..\..\src\Mvc.Server.Exceptions\Mvc.Server.Exceptions.csproj", "{4C6C3B06-B21E-4C02-8493-DCB44CF2C037}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mvc.Server.DataObjects", "..\..\src\Mvc.Server.DataObjects\Mvc.Server.DataObjects.csproj", "{E3CF7BEC-AB38-4923-A890-6623947E18FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvc.Server.DataObjects", "..\..\src\Mvc.Server.DataObjects\Mvc.Server.DataObjects.csproj", "{E3CF7BEC-AB38-4923-A890-6623947E18FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcServer.Entities", "..\..\src\MvcServer.Entities\MvcServer.Entities.csproj", "{846AF118-398E-496F-BFE5-5C985EA98D86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcServer.Entities", "..\..\src\MvcServer.Entities\MvcServer.Entities.csproj", "{846AF118-398E-496F-BFE5-5C985EA98D86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mvc.Server.Infrastructure", "..\..\src\Mvc.Server.Infrastructure\Mvc.Server.Infrastructure.csproj", "{44F18E38-13D8-474E-B943-C468A792BC55}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +61,10 @@ Global
 		{846AF118-398E-496F-BFE5-5C985EA98D86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{846AF118-398E-496F-BFE5-5C985EA98D86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{846AF118-398E-496F-BFE5-5C985EA98D86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44F18E38-13D8-474E-B943-C468A792BC55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44F18E38-13D8-474E-B943-C468A792BC55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44F18E38-13D8-474E-B943-C468A792BC55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44F18E38-13D8-474E-B943-C468A792BC55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

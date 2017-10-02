@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Mvc.Server.Helpers
+namespace Mvc.Server.DataObjects.Response
 {
     public class CustomResponseError
     {

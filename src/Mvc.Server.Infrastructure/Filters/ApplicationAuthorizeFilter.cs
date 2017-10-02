@@ -1,3 +1,5 @@
+
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -13,7 +15,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Mvc.Server.Filters
+namespace Mvc.Server.Infrastructure.Filters
 {
     /// <summary>
     /// An implementation of <see cref="T:Microsoft.AspNetCore.Mvc.Filters.IAsyncAuthorizationFilter" /> which applies a specific
