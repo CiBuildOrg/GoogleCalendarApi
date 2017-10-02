@@ -56,6 +56,7 @@ namespace Mvc.Server
         {
             services.AddOptions();
             services.Configure<AppOptions>(options => Core.Utilities.Configuration.ConfigurationBinder.Bind(Configuration, options));
+
             services.AddSingleton<IConfiguration>(Configuration);
             var opts = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration);
 

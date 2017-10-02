@@ -12,12 +12,17 @@ namespace Mvc.Server.Auth
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public IConfigurationRoot Configuration { get; }
+        public Startup(IHostingEnvironment env)
         {
-            Configuration = configuration;
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("config.json", true, true)
+                .AddJsonFile($"config.{env.EnvironmentName.ToLower()}.json", true)
+                .AddEnvironmentVariables();
+            Configuration = configuration.Build();
         }
 
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)

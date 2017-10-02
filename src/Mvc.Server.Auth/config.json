@@ -1,0 +1,51 @@
+{
+  "Application": {
+    "Name": "MvcServer",
+    "Version": "0.1.0"
+  },
+  "ConnectionStrings": {
+    "SqlServerProvider": "Data Source=.;Initial Catalog=MvcServer;Integrated Security=True;"
+  },
+  "Jwt": {
+    "Audience": "http://localhost:5000",
+    "Authority": "http://localhost:5000/",
+    "SecretKey": "secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret",
+    "AccessTokenLifetime": 4800,
+    "IdentityTokenLifetime": 4800,
+    "RefreshTokenLifetime": 14800
+  },
+  "Auth": {
+    "AuthorizeEndpoint": "/connect/authorize",
+    "LogoutEndpoint": "/connect/logout",
+    "TokenEndpoint": "/connect/token",
+    "UserInfoEndpoint": "/api/userinfo"
+  },
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Debug",
+      "Override": {
+        "Microsoft": "Information",
+        "System": "Information"
+      }
+    },
+    "WriteTo": [
+      {
+        "Name": "Async",
+        "Args": {
+          "configure": [
+            {
+              "Name": "LiterateConsole"
+            },
+            {
+              "Name": "RollingFile",
+              "Args": {
+                "pathFormat": "Logs/log-{Date}.txt",
+                "shared": true
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

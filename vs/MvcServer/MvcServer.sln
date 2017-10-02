@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvc.Server.DataObjects", ".
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcServer.Entities", "..\..\src\MvcServer.Entities\MvcServer.Entities.csproj", "{846AF118-398E-496F-BFE5-5C985EA98D86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mvc.Server.Infrastructure", "..\..\src\Mvc.Server.Infrastructure\Mvc.Server.Infrastructure.csproj", "{44F18E38-13D8-474E-B943-C468A792BC55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mvc.Server.Infrastructure", "..\..\src\Mvc.Server.Infrastructure\Mvc.Server.Infrastructure.csproj", "{44F18E38-13D8-474E-B943-C468A792BC55}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

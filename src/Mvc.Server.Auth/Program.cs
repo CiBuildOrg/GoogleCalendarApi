@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Mvc.Server.Auth
 {
@@ -10,12 +11,22 @@ namespace Mvc.Server.Auth
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
-        }
+            var config = new ConfigurationBuilder()
+                .AddCommandLine(args)
+                .AddEnvironmentVariables("ASPNETCORE_")
+                .AddJsonFile("hosting.json")
+                .Build();
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+            var host = new WebHostBuilder()
+                .ConfigureLogging(options => options.AddConsole())
+                .ConfigureLogging(options => options.AddDebug())
+                .UseConfiguration(config)
+                .UseIISIntegration()
+                .UseKestrel()
                 .UseStartup<Startup>()
                 .Build();
+
+            host.Run();
+        }
     }
 }
