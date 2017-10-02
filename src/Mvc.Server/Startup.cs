@@ -24,15 +24,14 @@ using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Mvc.Server.Core;
-using Mvc.Server.Core.Utilities.Configuration;
 using Mvc.Server.DataObjects.Configuration;
-using Mvc.Server.Filters;
 using Mvc.Server.Helpers;
 using Mvc.Server.Infrastructure.Filters;
 using Mvc.Server.Policies;
 using MvcServer.Entities;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
+using Mvc.Server.Infrastructure.Attributes;
 
 namespace Mvc.Server
 {
@@ -56,9 +55,9 @@ namespace Mvc.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddOptions();
-            services.Configure<AppOptions>(options => Configuration.Bind(options));
+            services.Configure<AppOptions>(options => Core.Utilities.Configuration.ConfigurationBinder.Bind(Configuration, options));
             services.AddSingleton<IConfiguration>(Configuration);
-            var opts = Configuration.Get<AppOptions>();
+            var opts = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration);
 
             // Add Swagger generator
             services.AddSwaggerGen(options =>
@@ -192,7 +191,7 @@ namespace Mvc.Server
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.Jwt.SecretKey)),
                         ValidateIssuer = true,
-                        ValidIssuer = Configuration.Get<AppOptions>().Jwt.Authority,
+                        ValidIssuer = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration).Jwt.Authority,
                         ValidateAudience = true,
                         ValidAudiences = new[] { opts.Jwt.Audience },
                         ValidateLifetime = true,
@@ -226,7 +225,7 @@ namespace Mvc.Server
             //options.AddEphemeralSigningKey();
 
             options.AddSigningKey(
-                new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.Get<AppOptions>().Jwt.SecretKey)));
+                new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration).Jwt.SecretKey)));
             // Make the "client_id" parameter mandatory when sending a token request.
             options.RequireClientIdentification();
             // During development, you can disable the HTTPS requirement.

@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Mvc.Server.Filters
+namespace Mvc.Server.Infrastructure.Attributes
 {
     public class ValidateModelFilterAttribute : ActionFilterAttribute
     {

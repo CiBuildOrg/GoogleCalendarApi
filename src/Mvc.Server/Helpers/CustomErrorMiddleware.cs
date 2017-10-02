@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Mvc.Server.DataObjects.Response;
-using Mvc.Server.Filters;
+using Mvc.Server.Infrastructure.Attributes;
 using Newtonsoft.Json;
 
 namespace Mvc.Server.Helpers
