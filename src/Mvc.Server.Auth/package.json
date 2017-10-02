@@ -1,7 +1,7 @@
 {
   "name": "starter-auth",
   "version": "0.1.0",
-  "description": "resource server",
+  "description": "authentication server",
   "repository": "repo-goes-here",
   "license": "MIT",
   "devDependencies": {

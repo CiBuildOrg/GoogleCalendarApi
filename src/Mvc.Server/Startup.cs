@@ -66,24 +66,7 @@ namespace Mvc.Server
                 options.SwaggerDoc("v1", new Info { Title = "Api Starter", Version = "v1" });
             });
 
-            services.AddAuthentication(OAuthValidationDefaults.AuthenticationScheme)
-                .AddCookie(o => o.Events = new CookieAuthenticationEvents
-                {
-                    OnRedirectToLogin = ctx =>
-                    {
-                        if (ctx.Request.Path.StartsWithSegments("/api") &&
-                            ctx.Response.StatusCode == (int)HttpStatusCode.OK)
-                        {
-                            ctx.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                        }
-                        else
-                        {
-                            ctx.Response.Redirect(ctx.RedirectUri);
-                        }
-
-                        return Task.FromResult(0);
-                    }
-                });
+            services.AddAuthentication(OAuthValidationDefaults.AuthenticationScheme);
 
             //Add MVC Core
             services.AddMvcCore(
