@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mvc.Server.Core;
 
-namespace Mvc.Server.Policies
+namespace Mvc.Server.Infrastructure.Security
 {
     public static class PermissionClaims
     {

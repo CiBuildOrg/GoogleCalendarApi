@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Mvc.Server.Policies
+namespace Mvc.Server.Infrastructure.Security
 {
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     public class PermissionHandler : AuthorizationHandler<PermissionRequirement>

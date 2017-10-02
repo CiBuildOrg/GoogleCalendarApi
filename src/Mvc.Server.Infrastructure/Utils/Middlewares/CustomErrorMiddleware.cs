@@ -9,7 +9,7 @@ using Mvc.Server.DataObjects.Response;
 using Mvc.Server.Infrastructure.Attributes;
 using Newtonsoft.Json;
 
-namespace Mvc.Server.Helpers
+namespace Mvc.Server.Infrastructure.Utils.Middlewares
 {
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Global")]

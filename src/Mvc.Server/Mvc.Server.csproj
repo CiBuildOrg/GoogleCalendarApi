@@ -87,7 +87,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <Folder Include="Controllers\Base\" />
   </ItemGroup>
 
 </Project>

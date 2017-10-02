@@ -26,11 +26,11 @@ using Mvc.Server.Core;
 using Mvc.Server.Database;
 using Mvc.Server.DataObjects.Configuration;
 using Mvc.Server.Infrastructure.Filters;
-using Mvc.Server.Policies;
 using MvcServer.Entities;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
 using Mvc.Server.Infrastructure.Attributes;
+using Mvc.Server.Infrastructure.Security;
 using Mvc.Server.Infrastructure.Utils;
 
 namespace Mvc.Server

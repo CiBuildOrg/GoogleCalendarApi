@@ -5,7 +5,7 @@ using Mvc.Server.Core;
 using Mvc.Server.Exceptions;
 using MvcServer.Entities;
 
-namespace Mvc.Server.Controllers.Base
+namespace Mvc.Server.Infrastructure.Mvc
 {
     public abstract class BaseController : Controller
     {
