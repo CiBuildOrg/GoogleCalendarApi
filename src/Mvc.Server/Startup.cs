@@ -76,6 +76,14 @@ namespace Mvc.Server
                     }
                 )
                 .AddJsonFormatters()
+                .AddAuthorization(options =>
+                {
+                    // Create a policy for each permission
+                    foreach (var permissionClaim in PermissionClaims.GetAll())
+                    {
+                        options.AddPolicy(permissionClaim, policy => policy.Requirements.Add(new PermissionRequirement(permissionClaim)));
+                    }
+                })
                 .AddDataAnnotations()
                 .AddCors()
                 .AddApiExplorer().ConfigureApplicationPartManager(manager =>
@@ -119,29 +127,24 @@ namespace Mvc.Server
                     // options.RoleClaimType = "custom_role_claim";
                 });
 
-            services.AddAuthentication(options =>
-                {
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-
-                .AddJwtBearer(options =>
-                {
-                    options.Authority = opts.Jwt.Authority;
-                    options.Audience = opts.Jwt.Audience;
-                    options.RequireHttpsMetadata = false;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.Jwt.SecretKey)),
-                        ValidateIssuer = true,
-                        ValidIssuer = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration).Jwt.Authority,
-                        ValidateAudience = true,
-                        ValidAudiences = new[] { opts.Jwt.Audience },
-                        ValidateLifetime = true,
-                        NameClaimType = OpenIdConnectConstants.Claims.Subject,
-                        RoleClaimType = OpenIdConnectConstants.Claims.Role
-                    };
-                });
+            //.AddJwtBearer(options =>
+            //{
+            //    options.Authority = opts.Jwt.Authority;
+            //    options.Audience = opts.Jwt.Audience;
+            //    options.RequireHttpsMetadata = false;
+            //    options.TokenValidationParameters = new TokenValidationParameters
+            //    {
+            //        ValidateIssuerSigningKey = true,
+            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.Jwt.SecretKey)),
+            //        ValidateIssuer = true,
+            //        ValidIssuer = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration).Jwt.Authority,
+            //        ValidateAudience = true,
+            //        ValidAudiences = new[] { opts.Jwt.Audience },
+            //        ValidateLifetime = true,
+            //        NameClaimType = OpenIdConnectConstants.Claims.Subject,
+            //        RoleClaimType = OpenIdConnectConstants.Claims.Role
+            //    };
+            //});
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
