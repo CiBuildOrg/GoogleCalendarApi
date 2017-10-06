@@ -10,6 +10,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <DockerComposeProjectPath>..\..\vs\MvcServer\docker-compose.dcproj</DockerComposeProjectPath>
     <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

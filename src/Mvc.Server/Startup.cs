@@ -1,32 +1,22 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Net;
-using System.Security.Claims;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using AspNet.Security.OAuth.Introspection;
 using AspNet.Security.OAuth.Validation;
-using AspNet.Security.OpenIdConnect.Primitives;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OpenIddict.Core;
-using OpenIddict.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Mvc.Server.Core;
 using Mvc.Server.Database;
 using Mvc.Server.DataObjects.Configuration;
 using Mvc.Server.Infrastructure.Filters;
-using MvcServer.Entities;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
 using Mvc.Server.Infrastructure.Attributes;
@@ -41,7 +31,7 @@ namespace Mvc.Server
     public class Startup
     {
         public IConfigurationRoot Configuration { get; }
-        
+
         public Startup(IHostingEnvironment env)
         {
             var configuration = new ConfigurationBuilder()
@@ -106,7 +96,7 @@ namespace Mvc.Server
 
                     manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
                     manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
-                }); 
+                });
 
             services.AddMvc().ConfigureApplicationPartManager(manager =>
             {
@@ -115,17 +105,13 @@ namespace Mvc.Server
 
                 manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
                 manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
-            }); 
+            });
 
             services.AddScoped<IAuthorizationHandler, PermissionHandler>();
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 // Configure the context to use Microsoft SQL Server.
                 options.UseSqlServer(opts.ConnectionStrings.SqlServerProvider);
-                // Register the entity sets needed by OpenIddict.
-                // Note: use the generic overload if you need
-                // to replace the default OpenIddict entities.
-                options.UseOpenIddict();
             });
 
             Log.Logger = new LoggerConfiguration()
@@ -133,32 +119,24 @@ namespace Mvc.Server
                 .Enrich.FromLogContext()
                 .CreateLogger();
 
-            // Register the Identity services.
-            services.AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
 
-            // Configure Identity to use the same JWT claims as OpenIddict instead
-            // of the legacy WS-Federation claims it uses by default (ClaimTypes),
-            // which saves you from doing the mapping in your authorization controller.
-            services.Configure<IdentityOptions>(options =>
-            {
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultScheme = OAuthIntrospectionDefaults.AuthenticationScheme;
+                })
 
-                options.ClaimsIdentity.UserNameClaimType = OpenIdConnectConstants.Claims.Name;
-                options.ClaimsIdentity.UserIdClaimType = OpenIdConnectConstants.Claims.Subject;
-                options.ClaimsIdentity.RoleClaimType = OpenIdConnectConstants.Claims.Role;
+                .AddOAuthIntrospection(options =>
+                {
+                    options.Authority = new Uri("http://localhost:5001/");
+                    options.Audiences.Add("mvc");
+                    options.ClientId = "mvc";
+                    options.ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654";
+                    options.RequireHttpsMetadata = false;
 
-                options.Password.RequireDigit = false;
-                options.Password.RequiredLength = 1;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireLowercase = false;
-                options.User.AllowedUserNameCharacters = ApplicationConstants.AllowedUsernameCharacters;
-                options.User.RequireUniqueEmail = false;
-                options.SignIn.RequireConfirmedEmail = false;
-                options.SignIn.RequireConfirmedPhoneNumber = false;
-                options.Lockout.MaxFailedAccessAttempts = 3;
-            });
+                    // Note: you can override the default name and role claims:
+                    // options.NameClaimType = "custom_name_claim";
+                    // options.RoleClaimType = "custom_role_claim";
+                });
 
             services.AddAuthentication(options =>
                 {
@@ -181,40 +159,6 @@ namespace Mvc.Server
                         ValidateLifetime = true,
                     };
                 });
-
-
-            // Register the OpenIddict services.
-            services.AddOpenIddict(options =>
-        {
-            // Register the Entity Framework stores.
-            options.AddEntityFrameworkCoreStores<ApplicationDbContext>();
-            // Register the ASP.NET Core MVC binder used by OpenIddict.
-            // Note: if you don't call this method, you won't be able to
-            // bind OpenIdConnectRequest or OpenIdConnectResponse parameters.
-            options.AddMvcBinders();
-
-            // Enable the authorization, logout, token and userinfo endpoints.
-            options.EnableAuthorizationEndpoint(opts.Auth.AuthorizeEndpoint)
-               .EnableLogoutEndpoint(opts.Auth.LogoutEndpoint)
-               .EnableTokenEndpoint(opts.Auth.TokenEndpoint)
-               .EnableUserinfoEndpoint(opts.Auth.UserInfoEndpoint);
-
-            // Note: the Mvc.Client sample only uses the code flow and the password flow, but you
-            // can enable the other flows if you need to support implicit or client credentials.
-            options
-               .AllowPasswordFlow()
-               .AllowRefreshTokenFlow();
-
-            options.UseJsonWebTokens();
-            //options.AddEphemeralSigningKey();
-
-            options.AddSigningKey(
-                new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration).Jwt.SecretKey)));
-            // Make the "client_id" parameter mandatory when sending a token request.
-            options.RequireClientIdentification();
-            // During development, you can disable the HTTPS requirement.
-            options.DisableHttpsRequirement();
-        });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -225,7 +169,7 @@ namespace Mvc.Server
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             app.UseStaticFiles();
 
             app.UseStatusCodePagesWithReExecute("/error");
@@ -242,154 +186,6 @@ namespace Mvc.Server
                 c.RoutePrefix = "apidocs";
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Web API");
             });
-
-
-            // Seed the database with the sample applications.
-            // Note: in a real world application, this step should be part of a setup script.
-            InitializeAsync(app.ApplicationServices, CancellationToken.None).GetAwaiter().GetResult();
-        }
-
-        private static async Task InitializeAsync(IServiceProvider services, CancellationToken cancellationToken)
-        {
-            // Create a new service scope to ensure the database context is correctly disposed when this methods returns.
-            using (var scope = services.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                await context.Database.EnsureCreatedAsync(cancellationToken);
-
-                var manager = scope.ServiceProvider.GetRequiredService<OpenIddictApplicationManager<OpenIddictApplication>>();
-
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
-
-                if (!roleManager.Roles.Any(x => x.Name == "Admin"))
-                {
-                    await roleManager.CreateAsync(new ApplicationRole
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Name = "Admin",
-                        NormalizedName = "admin",
-                    });
-
-                    var adminRole = roleManager.Roles.SingleOrDefault(x => x.Name == "Admin");
-
-                    if (adminRole == null)
-                        throw new Exception("Newly created role Admin could not be found");
-
-                    foreach (var claim in PermissionClaims.GetAdminClaims())
-                    {
-                        await roleManager.AddClaimAsync(adminRole, new Claim(ApplicationConstants.PermissionClaimName, claim));
-                    }
-                }
-
-                if (!roleManager.Roles.Any(x => x.Name == "User"))
-                {
-                    await roleManager.CreateAsync(new ApplicationRole
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Name = "User",
-                        NormalizedName = "user"
-                    });
-
-                    var userRole = roleManager.Roles.SingleOrDefault(x => x.Name == "User");
-
-                    if (userRole == null)
-                        throw new Exception("Newly created role Admin could not be found");
-
-                    foreach (var claim in PermissionClaims.GetAppUserClaims())
-                    {
-                        await roleManager.AddClaimAsync(userRole, new Claim(ApplicationConstants.PermissionClaimName, claim));
-                    }
-                }
-
-                if (await userManager.FindByEmailAsync("cioclea.doru@gmail.com") == null)
-                {
-                    // create the user 
-                    var applicationUser = new ApplicationUser
-                    {
-                        Email = "cioclea.doru@gmail.com",
-                        EmailConfirmed = true,
-                        Id = Guid.NewGuid().ToString(),
-                        UserName = "doruc"
-                    };
-
-                    var result = await userManager.CreateAsync(applicationUser, "secret");
-                    if (!result.Succeeded)
-                    {
-                        StringBuilder builder = new StringBuilder();
-                        foreach (var err in result.Errors)
-                        {
-                            builder.AppendLine(err.Description);
-                        }
-
-                        throw new Exception(builder.ToString());
-                    }
-
-                    await userManager.SetLockoutEnabledAsync(applicationUser, false);
-                    await userManager.AddToRolesAsync(applicationUser, new[] { "Admin", "User" });
-                }
-
-                if (await userManager.FindByEmailAsync("cioclea.doru2@gmail.com") == null)
-                {
-                    // create the user 
-                    var applicationUser = new ApplicationUser
-                    {
-                        Email = "cioclea.doru2@gmail.com",
-                        EmailConfirmed = true,
-                        Id = Guid.NewGuid().ToString(),
-                        UserName = "doruc1"
-                    };
-
-                    var result = await userManager.CreateAsync(applicationUser, "secret");
-                    if (!result.Succeeded)
-                    {
-                        StringBuilder builder = new StringBuilder();
-                        foreach (var err in result.Errors)
-                        {
-                            builder.AppendLine(err.Description);
-                        }
-
-                        throw new Exception(builder.ToString());
-                    }
-
-                    await userManager.SetLockoutEnabledAsync(applicationUser, false);
-                    await userManager.AddToRolesAsync(applicationUser, new[] { "User" });
-                }
-
-                if (await manager.FindByClientIdAsync("mvc", cancellationToken) == null)
-                {
-                    var application = new OpenIddictApplication
-                    {
-                        ClientId = "mvc",
-                        DisplayName = "MVC client application",
-                        LogoutRedirectUri = "",
-                        RedirectUri = ""
-                    };
-
-                    await manager.CreateAsync(application, "901564A5-E7FE-42CB-B10D-61EF6A8F3654", cancellationToken);
-                }
-
-                // To test this sample with Postman, use the following settings:
-                //
-                // * Authorization URL: http://localhost:54540/connect/authorize
-                // * Access token URL: http://localhost:54540/connect/token
-                // * Client ID: postman
-                // * Client secret: [blank] (not used with public clients)
-                // * Scope: openid email profile roles
-                // * Grant type: authorization code
-                // * Request access token locally: yes
-                if (await manager.FindByClientIdAsync("postman", cancellationToken) == null)
-                {
-                    var application = new OpenIddictApplication
-                    {
-                        ClientId = "postman",
-                        DisplayName = "Postman",
-                        RedirectUri = ""
-                    };
-
-                    await manager.CreateAsync(application, cancellationToken);
-                }
-            }
         }
     }
 }
