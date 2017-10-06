@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using AspNet.Security.OAuth.Introspection;
 using AspNet.Security.OAuth.Validation;
+using AspNet.Security.OpenIdConnect.Primitives;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -46,7 +47,6 @@ namespace Mvc.Server
         {
             services.AddOptions();
             services.Configure<AppOptions>(options => Core.Utilities.Configuration.ConfigurationBinder.Bind(Configuration, options));
-
             services.AddSingleton<IConfiguration>(Configuration);
             var opts = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration);
 
@@ -56,13 +56,10 @@ namespace Mvc.Server
                 options.SwaggerDoc("v1", new Info { Title = "Api Starter", Version = "v1" });
             });
 
-            services.AddAuthentication(OAuthValidationDefaults.AuthenticationScheme);
-
             //Add MVC Core
             services.AddMvcCore(
                     options =>
                     {
-
                         // Add global authorization filter 
                         var policy = new AuthorizationPolicyBuilder()
                             .RequireAuthenticatedUser()
@@ -79,14 +76,6 @@ namespace Mvc.Server
                     }
                 )
                 .AddJsonFormatters()
-                .AddAuthorization(options =>
-                {
-                    // Create a policy for each permission
-                    foreach (var permissionClaim in PermissionClaims.GetAll())
-                    {
-                        options.AddPolicy(permissionClaim, policy => policy.Requirements.Add(new PermissionRequirement(permissionClaim)));
-                    }
-                })
                 .AddDataAnnotations()
                 .AddCors()
                 .AddApiExplorer().ConfigureApplicationPartManager(manager =>
@@ -107,18 +96,10 @@ namespace Mvc.Server
                 manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
             });
 
-            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
-            services.AddDbContext<ApplicationDbContext>(options =>
-            {
-                // Configure the context to use Microsoft SQL Server.
-                options.UseSqlServer(opts.ConnectionStrings.SqlServerProvider);
-            });
-
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(Configuration)
                 .Enrich.FromLogContext()
                 .CreateLogger();
-
 
             services.AddAuthentication(options =>
                 {
@@ -157,6 +138,8 @@ namespace Mvc.Server
                         ValidateAudience = true,
                         ValidAudiences = new[] { opts.Jwt.Audience },
                         ValidateLifetime = true,
+                        NameClaimType = OpenIdConnectConstants.Claims.Subject,
+                        RoleClaimType = OpenIdConnectConstants.Claims.Role
                     };
                 });
         }
@@ -173,8 +156,6 @@ namespace Mvc.Server
             app.UseStaticFiles();
 
             app.UseStatusCodePagesWithReExecute("/error");
-            app.UseAuthentication();
-            //app.UseExampleMiddleware();
             app.UseMvcWithDefaultRoute();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
