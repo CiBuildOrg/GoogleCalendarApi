@@ -56,12 +56,12 @@ namespace Mvc.Server
             services.AddMvcCore(
                     options =>
                     {
-                        // Add global authorization filter 
-                        var policy = new AuthorizationPolicyBuilder()
-                            .RequireAuthenticatedUser()
-                            .Build();
+                        //// Add global authorization filter 
+                        //var policy = new AuthorizationPolicyBuilder()
+                        //    .RequireAuthenticatedUser()
+                        //    .Build();
 
-                        options.Filters.Add(new ApplicationAuthorizeFilter(policy));
+                        //options.Filters.Add(new ApplicationAuthorizeFilter(policy));
 
                         // Add global exception handler for production
                         options.Filters.Add(typeof(CustomExceptionFilterAttribute));
@@ -130,6 +130,7 @@ namespace Mvc.Server
 
                 .AddCookie(options =>
                 {
+                    options.LogoutPath = new PathString("/signout");
                     options.LoginPath = new PathString("/signin");
                 })
 
@@ -156,9 +157,9 @@ namespace Mvc.Server
                     options.Scope.Add("email");
                     options.Scope.Add("roles");
 
-                    options.Scope.Add("openid");
-                    options.Scope.Add("profile");
-                    options.Scope.Add("offline_access");
+                    //options.Scope.Add("openid");
+                  //  options.Scope.Add("profile");
+                  //  options.Scope.Add("offline_access");
                 });
 
             services.AddSingleton<HttpClient>();
