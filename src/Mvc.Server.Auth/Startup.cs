@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AspNet.Security.OAuth.Validation;
 using AspNet.Security.OpenIdConnect.Primitives;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -153,28 +152,28 @@ namespace Mvc.Server.Auth
                 options.Lockout.MaxFailedAccessAttempts = 3;
             });
 
-            services.AddAuthentication(options =>
-                {
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
+            //services.AddAuthentication(options =>
+            //    {
+            //        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    })
 
-                .AddJwtBearer(options =>
-                {
-                    options.Authority = opts.Jwt.Authority;
-                    options.Audience = opts.Jwt.Audience;
-                    options.RequireHttpsMetadata = false;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.Jwt.SecretKey)),
-                        ValidateIssuer = true,
-                        ValidIssuer = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration)
-                            .Jwt.Authority,
-                        ValidateAudience = true,
-                        ValidAudiences = new[] { opts.Jwt.Audience },
-                        ValidateLifetime = true,
-                    };
-                });
+            //    .AddJwtBearer(options =>
+            //    {
+            //        options.Authority = opts.Jwt.Authority;
+            //        options.Audience = opts.Jwt.Audience;
+            //        options.RequireHttpsMetadata = false;
+            //        options.TokenValidationParameters = new TokenValidationParameters
+            //        {
+            //            ValidateIssuerSigningKey = true,
+            //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.Jwt.SecretKey)),
+            //            ValidateIssuer = true,
+            //            ValidIssuer = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration)
+            //                .Jwt.Authority,
+            //            ValidateAudience = true,
+            //            ValidAudiences = new[] { opts.Jwt.Audience },
+            //            ValidateLifetime = true,
+            //        };
+            //    });
 
 
             // Register the OpenIddict services.
@@ -196,10 +195,11 @@ namespace Mvc.Server.Auth
                 // Note: the Mvc.Client sample only uses the code flow and the password flow, but you
                 // can enable the other flows if you need to support implicit or client credentials.
                 options
-                    .AllowPasswordFlow()
-                    .AllowRefreshTokenFlow();
+                   // .AllowPasswordFlow()
+                   // .AllowRefreshTokenFlow()
+                    .AllowAuthorizationCodeFlow();
 
-                options.UseJsonWebTokens();
+                //options.UseJsonWebTokens();
                 //options.AddEphemeralSigningKey();
 
                 options.AddSigningKey(
@@ -356,8 +356,8 @@ namespace Mvc.Server.Auth
                     {
                         ClientId = "mvc",
                         DisplayName = "MVC client application",
-                        LogoutRedirectUri = "http://localhost:5000/connect/logout",
-                        RedirectUri = "http://localhost:5000/Account/Login"
+                        LogoutRedirectUri = "http://localhost:5001/connect/logout",
+                        RedirectUri = "http://localhost:5001/Account/Login"
                     };
 
                     await manager.CreateAsync(application, "901564A5-E7FE-42CB-B10D-61EF6A8F3654", cancellationToken);
@@ -365,8 +365,8 @@ namespace Mvc.Server.Auth
 
                 // To test this sample with Postman, use the following settings:
                 //
-                // * Authorization URL: http://localhost:54540/connect/authorize
-                // * Access token URL: http://localhost:54540/connect/token
+                // * Authorization URL: http://localhost:5001/connect/authorize
+                // * Access token URL: http://localhost:5001/connect/token
                 // * Client ID: postman
                 // * Client secret: [blank] (not used with public clients)
                 // * Scope: openid email profile roles
@@ -379,7 +379,6 @@ namespace Mvc.Server.Auth
                         ClientId = "postman",
                         DisplayName = "Postman",
                         RedirectUri = "",
-                        
                     };
 
                     await manager.CreateAsync(application, cancellationToken);

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,7 @@ namespace Mvc.Server.Auth
                 .ConfigureLogging(options => options.AddConsole())
                 .ConfigureLogging(options => options.AddDebug())
                 .UseConfiguration(config)
+                .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
                 .UseKestrel()
                 .UseStartup<Startup>()
