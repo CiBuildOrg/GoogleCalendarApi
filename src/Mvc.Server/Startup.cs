@@ -1,24 +1,24 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
+using AspNet.Security.OpenIdConnect.Primitives;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Mvc.Server.DataObjects.Configuration;
-using Mvc.Server.Infrastructure.Filters;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
 using Mvc.Server.Infrastructure.Attributes;
 using Mvc.Server.Infrastructure.Security;
 using Mvc.Server.Infrastructure.Utils;
+using OpenIddict.Core;
 
 namespace Mvc.Server
 {
@@ -52,53 +52,55 @@ namespace Mvc.Server
                 options.SwaggerDoc("v1", new Info { Title = "Api Starter", Version = "v1" });
             });
 
-            //Add MVC Core
-            services.AddMvcCore(
-                    options =>
-                    {
-                        //// Add global authorization filter 
-                        //var policy = new AuthorizationPolicyBuilder()
-                        //    .RequireAuthenticatedUser()
-                        //    .Build();
+            ////Add MVC Core
+            //services.AddMvcCore(
+            //        options =>
+            //        {
+            //            //// Add global authorization filter 
+            //            //var policy = new AuthorizationPolicyBuilder()
+            //            //    .RequireAuthenticatedUser()
+            //            //    .Build();
+            
+            //            //options.Filters.Add(new ApplicationAuthorizeFilter(policy));
 
-                        //options.Filters.Add(new ApplicationAuthorizeFilter(policy));
+            //            // Add global exception handler for production
+            //            options.Filters.Add(typeof(CustomExceptionFilterAttribute));
 
-                        // Add global exception handler for production
-                        options.Filters.Add(typeof(CustomExceptionFilterAttribute));
+            //            // Add global validation filter
+            //            options.Filters.Add(typeof(ValidateModelFilterAttribute));
 
-                        // Add global validation filter
-                        options.Filters.Add(typeof(ValidateModelFilterAttribute));
+            //        }
+            //    )
+            //    .AddJsonFormatters()
+            //    .AddAuthorization(options =>
+            //    {
+            //        // Create a policy for each permission
+            //        foreach (var permissionClaim in PermissionClaims.GetAll())
+            //        {
+            //            options.AddPolicy(permissionClaim, policy => policy.Requirements.Add(new PermissionRequirement(permissionClaim)));
+            //        }
+            //    })
+            //    .AddDataAnnotations()
+            //    .AddCors()
+            //    .AddApiExplorer().ConfigureApplicationPartManager(manager =>
+            //    {
+            //        var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
+            //        if (oldMetadataReferenceFeatureProvider == null) return;
 
-                    }
-                )
-                .AddJsonFormatters()
-                .AddAuthorization(options =>
-                {
-                    // Create a policy for each permission
-                    foreach (var permissionClaim in PermissionClaims.GetAll())
-                    {
-                        options.AddPolicy(permissionClaim, policy => policy.Requirements.Add(new PermissionRequirement(permissionClaim)));
-                    }
-                })
-                .AddDataAnnotations()
-                .AddCors()
-                .AddApiExplorer().ConfigureApplicationPartManager(manager =>
-                {
-                    var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
-                    if (oldMetadataReferenceFeatureProvider == null) return;
+            //        manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
+            //        manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
+            //    });
 
-                    manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
-                    manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
-                });
+            services.AddMvc();
 
-            services.AddMvc().ConfigureApplicationPartManager(manager =>
-            {
-                var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
-                if (oldMetadataReferenceFeatureProvider == null) return;
+            //services.AddMvc().ConfigureApplicationPartManager(manager =>
+            //{
+            //    var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
+            //    if (oldMetadataReferenceFeatureProvider == null) return;
 
-                manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
-                manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
-            });
+            //    manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
+            //    manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
+            //});
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(Configuration)
@@ -130,7 +132,7 @@ namespace Mvc.Server
 
                 .AddCookie(options =>
                 {
-                    options.LogoutPath = new PathString("/signout");
+                    //options.LogoutPath = new PathString("/signout");
                     options.LoginPath = new PathString("/signin");
                 })
 
@@ -154,12 +156,22 @@ namespace Mvc.Server
                     // the different endpoints URIs or the token validation parameters explicitly.
                     options.Authority = "http://localhost:5001/";
 
-                    options.Scope.Add("email");
-                    options.Scope.Add("roles");
+                    /*
+                     * 
+                     *  Add these
+                     *  OpenIdConnectConstants.Scopes.OpenId,
+                        OpenIdConnectConstants.Scopes.Email,
+                        OpenIdConnectConstants.Scopes.Profile,
+                        OpenIdConnectConstants.Scopes.OfflineAccess,
+                        OpenIddictConstants.Scopes.Roles
+                    *
+                    */
 
-                    //options.Scope.Add("openid");
-                  //  options.Scope.Add("profile");
-                  //  options.Scope.Add("offline_access");
+                    options.Scope.Add(OpenIdConnectConstants.Scopes.OpenId);
+                    options.Scope.Add(OpenIdConnectConstants.Scopes.Email);
+                    options.Scope.Add(OpenIdConnectConstants.Scopes.Profile);
+                    options.Scope.Add(OpenIdConnectConstants.Scopes.OfflineAccess);
+                    options.Scope.Add(OpenIddictConstants.Scopes.Roles);
                 });
 
             services.AddSingleton<HttpClient>();
@@ -192,6 +204,8 @@ namespace Mvc.Server
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseAuthentication();
 
             app.UseStaticFiles();
 

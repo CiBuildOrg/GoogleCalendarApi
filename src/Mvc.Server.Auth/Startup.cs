@@ -195,8 +195,8 @@ namespace Mvc.Server.Auth
                 // Note: the Mvc.Client sample only uses the code flow and the password flow, but you
                 // can enable the other flows if you need to support implicit or client credentials.
                 options
-                   // .AllowPasswordFlow()
-                   // .AllowRefreshTokenFlow()
+                    .AllowPasswordFlow()
+                    .AllowRefreshTokenFlow()
                     .AllowAuthorizationCodeFlow();
 
                 //options.UseJsonWebTokens();
@@ -356,8 +356,8 @@ namespace Mvc.Server.Auth
                     {
                         ClientId = "mvc",
                         DisplayName = "MVC client application",
-                        LogoutRedirectUri = "http://localhost:5001/connect/logout",
-                        RedirectUri = "http://localhost:5001/Account/Login"
+                        LogoutRedirectUri = "http://localhost:5000/signout-callback-oidc",
+                        RedirectUri = "http://localhost:5000/signin-oidc"
                     };
 
                     await manager.CreateAsync(application, "901564A5-E7FE-42CB-B10D-61EF6A8F3654", cancellationToken);

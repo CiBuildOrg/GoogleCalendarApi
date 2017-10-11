@@ -7,7 +7,7 @@ namespace Mvc.Server.Controllers
 {
     public class AuthenticationController : Controller
     {
-        [HttpGet("~/signin")]
+        [HttpGet("~/signin")]   
         public ActionResult SignIn()
         {
             return Challenge(new AuthenticationProperties { RedirectUri = "/" }, OpenIdConnectDefaults.AuthenticationScheme);
