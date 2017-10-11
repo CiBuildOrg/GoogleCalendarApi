@@ -91,7 +91,6 @@ namespace Mvc.Server
             //        manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
             //    });
 
-            services.AddMvc();
 
             //services.AddMvc().ConfigureApplicationPartManager(manager =>
             //{
@@ -138,11 +137,11 @@ namespace Mvc.Server
 
                 .AddOpenIdConnect(options =>
                 {
+
                     // Note: these settings must match the application details
                     // inserted in the database at the server level.
                     options.ClientId = "mvc";
                     options.ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654";
-
                     options.RequireHttpsMetadata = false;
                     options.GetClaimsFromUserInfoEndpoint = true;
                     options.SaveTokens = true;
@@ -150,7 +149,6 @@ namespace Mvc.Server
                     // Use the authorization code flow.
                     options.ResponseType = OpenIdConnectResponseType.Code;
                     options.AuthenticationMethod = OpenIdConnectRedirectBehavior.RedirectGet;
-
                     // Note: setting the Authority allows the OIDC client middleware to automatically
                     // retrieve the identity provider's configuration and spare you from setting
                     // the different endpoints URIs or the token validation parameters explicitly.
@@ -172,7 +170,12 @@ namespace Mvc.Server
                     options.Scope.Add(OpenIdConnectConstants.Scopes.Profile);
                     options.Scope.Add(OpenIdConnectConstants.Scopes.OfflineAccess);
                     options.Scope.Add(OpenIddictConstants.Scopes.Roles);
+
+                    options.Validate();
                 });
+
+
+            services.AddMvc();
 
             services.AddSingleton<HttpClient>();
 
@@ -223,4 +226,7 @@ namespace Mvc.Server
             });
         }
     }
+
+
+
 }

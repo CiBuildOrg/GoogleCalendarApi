@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,12 @@ namespace Mvc.Server.Controllers
         [HttpGet("~/signin")]   
         public ActionResult SignIn()
         {
-            return Challenge(new AuthenticationProperties { RedirectUri = "/" }, OpenIdConnectDefaults.AuthenticationScheme);
+            return Challenge(new AuthenticationProperties
+            {
+                RedirectUri = "/",
+                AllowRefresh = true,
+
+            }, OpenIdConnectDefaults.AuthenticationScheme);
         }
 
         [HttpGet("~/signout"), HttpPost("~/signout")]

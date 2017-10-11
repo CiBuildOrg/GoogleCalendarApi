@@ -197,7 +197,8 @@ namespace Mvc.Server.Auth
                 options
                     .AllowPasswordFlow()
                     .AllowRefreshTokenFlow()
-                    .AllowAuthorizationCodeFlow();
+                    .AllowAuthorizationCodeFlow()
+                    .AllowClientCredentialsFlow();
 
                 //options.UseJsonWebTokens();
                 //options.AddEphemeralSigningKey();
@@ -252,7 +253,6 @@ namespace Mvc.Server.Auth
                 await context.Database.EnsureCreatedAsync(cancellationToken);
 
                 var manager = scope.ServiceProvider.GetRequiredService<OpenIddictApplicationManager<OpenIddictApplication>>();
-
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
