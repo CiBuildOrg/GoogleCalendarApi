@@ -3,10 +3,10 @@
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.0</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
-    <ProjectGuid>53820771-f717-41d8-8319-9ebb5f51b63b</ProjectGuid>
+    <ProjectGuid>53820771-F717-41D8-8319-9EBB5F51B63B</ProjectGuid>
     <DockerLaunchBrowser>True</DockerLaunchBrowser>
     <DockerServiceUrl>http://{ServiceIPAddress}</DockerServiceUrl>
-    <DockerServiceName>mvc.server.auth</DockerServiceName>
+    <DockerServiceName>mvc.server</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.ci.build.yml" />

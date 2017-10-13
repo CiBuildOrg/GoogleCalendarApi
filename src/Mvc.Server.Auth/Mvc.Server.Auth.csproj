@@ -98,4 +98,8 @@
     <TypeScriptSourceRoot />
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netcoreapp2.0\Mvc.Server.Auth.xml</DocumentationFile>
+  </PropertyGroup>
+
 </Project>

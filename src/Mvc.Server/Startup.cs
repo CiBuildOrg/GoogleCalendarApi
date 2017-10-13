@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
@@ -53,54 +54,54 @@ namespace Mvc.Server
                 options.SwaggerDoc("v1", new Info { Title = "Api Starter", Version = "v1" });
             });
 
-            ////Add MVC Core
-            //services.AddMvcCore(
-            //        options =>
-            //        {
-            //            //// Add global authorization filter 
-            //            //var policy = new AuthorizationPolicyBuilder()
-            //            //    .RequireAuthenticatedUser()
-            //            //    .Build();
-            
-            //            //options.Filters.Add(new ApplicationAuthorizeFilter(policy));
+            //Add MVC Core
+            services.AddMvcCore(
+                    options =>
+                    {
+                        // Add global authorization filter 
+                        var policy = new AuthorizationPolicyBuilder()
+                            .RequireAuthenticatedUser()
+                            .Build();
 
-            //            // Add global exception handler for production
-            //            options.Filters.Add(typeof(CustomExceptionFilterAttribute));
+                        //options.Filters.Add(new ApplicationAuthorizeFilter(policy));
 
-            //            // Add global validation filter
-            //            options.Filters.Add(typeof(ValidateModelFilterAttribute));
+                        // Add global exception handler for production
+                        options.Filters.Add(typeof(CustomExceptionFilterAttribute));
 
-            //        }
-            //    )
-            //    .AddJsonFormatters()
-            //    .AddAuthorization(options =>
-            //    {
-            //        // Create a policy for each permission
-            //        foreach (var permissionClaim in PermissionClaims.GetAll())
-            //        {
-            //            options.AddPolicy(permissionClaim, policy => policy.Requirements.Add(new PermissionRequirement(permissionClaim)));
-            //        }
-            //    })
-            //    .AddDataAnnotations()
-            //    .AddCors()
-            //    .AddApiExplorer().ConfigureApplicationPartManager(manager =>
-            //    {
-            //        var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
-            //        if (oldMetadataReferenceFeatureProvider == null) return;
+                        // Add global validation filter
+                        options.Filters.Add(typeof(ValidateModelFilterAttribute));
 
-            //        manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
-            //        manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
-            //    });
+                    }
+                )
+                .AddJsonFormatters()
+                .AddAuthorization(options =>
+                {
+                    // Create a policy for each permission
+                    foreach (var permissionClaim in PermissionClaims.GetAll())
+                    {
+                        options.AddPolicy(permissionClaim, policy => policy.Requirements.Add(new PermissionRequirement(permissionClaim)));
+                    }
+                })
+                .AddDataAnnotations()
+                .AddCors()
+                .AddApiExplorer().ConfigureApplicationPartManager(manager =>
+                {
+                    var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
+                    if (oldMetadataReferenceFeatureProvider == null) return;
+
+                    manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
+                    manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
+                });
 
 
-            //services.AddMvc().ConfigureApplicationPartManager(manager =>
-            //{
-            //    var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
-            //    if (oldMetadataReferenceFeatureProvider == null) return;
+            services.AddMvc().ConfigureApplicationPartManager(manager =>
+            {
+                var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
+                if (oldMetadataReferenceFeatureProvider == null) return;
 
-            //    manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
-            //    manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
-            //});
+                manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
+                manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
+            });
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(Configuration)
@@ -154,17 +155,6 @@ namespace Mvc.Server
                     // retrieve the identity provider's configuration and spare you from setting
                     // the different endpoints URIs or the token validation parameters explicitly.
                     options.Authority = "http://localhost:5001/";
-
-                    /*
-                     * 
-                     *  Add these
-                     *  OpenIdConnectConstants.Scopes.OpenId,
-                        OpenIdConnectConstants.Scopes.Email,
-                        OpenIdConnectConstants.Scopes.Profile,
-                        OpenIdConnectConstants.Scopes.OfflineAccess,
-                        OpenIddictConstants.Scopes.Roles
-                    *
-                    */
 
                     options.Scope.Add(OpenIdConnectConstants.Scopes.OpenId);
                     options.Scope.Add(OpenIdConnectConstants.Scopes.Email);
