@@ -132,7 +132,6 @@ namespace Mvc.Server
 
                 .AddOpenIdConnect(options =>
                 {
-
                     // Note: these settings must match the application details
                     // inserted in the database at the server level.
                     options.ClientId = "mvc";
@@ -182,19 +181,12 @@ namespace Mvc.Server
                 app.UseExceptionHandler("/Home/Error");
             }
 
-
             app.UseAuthentication();
-
-
             app.UseStatusCodePagesWithReExecute("/error");
-
             app.UseSecureHeadersMiddleware(secureHeaderSettings.Value);
-
             app.UseMvcWithDefaultRoute();
-
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
-
             // Enable middleware to serve swagger-ui (HTML, JS, CSS etc.), specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
