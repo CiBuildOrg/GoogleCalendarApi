@@ -7,20 +7,21 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Mvc.Server.DataObjects.Configuration;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
 using Mvc.Server.Infrastructure.Attributes;
-using Mvc.Server.Infrastructure.Filters;
 using Mvc.Server.Infrastructure.Security;
 using Mvc.Server.Infrastructure.Utils;
 using OpenIddict.Core;
+using OwaspHeaders.Core.Extensions;
+using OwaspHeaders.Core.Models;
 
 namespace Mvc.Server
 {
@@ -159,40 +160,35 @@ namespace Mvc.Server
 
             services.AddSingleton<HttpClient>();
 
-            //.AddJwtBearer(options =>
-            //{
-            //    options.Authority = opts.Jwt.Authority;
-            //    options.Audience = opts.Jwt.Audience;
-            //    options.RequireHttpsMetadata = false;
-            //    options.TokenValidationParameters = new TokenValidationParameters
-            //    {
-            //        ValidateIssuerSigningKey = true,
-            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.Jwt.SecretKey)),
-            //        ValidateIssuer = true,
-            //        ValidIssuer = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration).Jwt.Authority,
-            //        ValidateAudience = true,
-            //        ValidAudiences = new[] { opts.Jwt.Audience },
-            //        ValidateLifetime = true,
-            //        NameClaimType = OpenIdConnectConstants.Claims.Subject,
-            //        RoleClaimType = OpenIdConnectConstants.Claims.Role
-            //    };
-            //});
+         //   services.Configure<SecureHeadersMiddlewareConfiguration>(
+          //      Configuration.GetSection("SecureHeadersMiddlewareConfiguration"));
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
+            IOptions<SecureHeadersMiddlewareConfiguration> secureHeaderSettings)
         {
             loggerFactory.AddSerilog();
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseBrowserLink();
+                app.UseDatabaseErrorPage();
             }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+            }
+            
 
             app.UseAuthentication();
 
             app.UseStaticFiles();
 
             app.UseStatusCodePagesWithReExecute("/error");
+
+           // app.UseSecureHeadersMiddleware(secureHeaderSettings.Value);
+
             app.UseMvcWithDefaultRoute();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.

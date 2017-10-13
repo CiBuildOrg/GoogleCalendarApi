@@ -51,6 +51,7 @@
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="2.0.0-rc1-0734" />
     <PackageReference Include="OpenIddict.Models" Version="2.0.0-rc1-0734" />
     <PackageReference Include="OpenIddict.Mvc" Version="2.0.0-rc1-0734" />
+    <PackageReference Include="OwaspHeaders.Core" Version="2.0.0" />
     <PackageReference Include="Serilog" Version="2.6.0-dev-00904" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="2.4.1-dev-00061" />
