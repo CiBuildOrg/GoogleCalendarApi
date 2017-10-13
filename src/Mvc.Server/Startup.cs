@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Http;
 using AspNet.Security.OpenIdConnect.Primitives;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -126,10 +127,10 @@ namespace Mvc.Server
 
             services.AddAuthentication(options =>
                 {
-                    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
 
-                .AddCookie(options =>
+                .AddCookie(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
                     //options.LogoutPath = new PathString("/signout");
                     options.LoginPath = new PathString("/signin");
@@ -170,8 +171,6 @@ namespace Mvc.Server
                     options.Scope.Add(OpenIdConnectConstants.Scopes.Profile);
                     options.Scope.Add(OpenIdConnectConstants.Scopes.OfflineAccess);
                     options.Scope.Add(OpenIddictConstants.Scopes.Roles);
-
-                    options.Validate();
                 });
 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -7,6 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using AspNet.Security.OAuth.Validation;
 using AspNet.Security.OpenIdConnect.Primitives;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -57,13 +60,47 @@ namespace Mvc.Server.Auth
             services.AddSingleton<IConfiguration>(Configuration);
             var opts = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration);
 
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(Configuration)
+                .Enrich.FromLogContext()
+                .CreateLogger();
+
             // Add Swagger generator
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new Info { Title = "Api Starter", Version = "v1" });
+                options.SwaggerDoc("v1",
+                    new Info
+                    {
+                        Title = "Api Starter Swagger",
+                        Version = "v1"
+                    });
             });
 
-            services.AddAuthentication(OAuthValidationDefaults.AuthenticationScheme);
+            // Register the Identity services.
+            services.AddIdentity<ApplicationUser, ApplicationRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            // Configure Identity to use the same JWT claims as OpenIddict instead
+            // of the legacy WS-Federation claims it uses by default (ClaimTypes),
+            // which saves you from doing the mapping in your authorization controller.
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.ClaimsIdentity.UserNameClaimType = OpenIdConnectConstants.Claims.Name;
+                options.ClaimsIdentity.UserIdClaimType = OpenIdConnectConstants.Claims.Subject;
+                options.ClaimsIdentity.RoleClaimType = OpenIdConnectConstants.Claims.Role;
+
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 1;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+                options.User.AllowedUserNameCharacters = ApplicationConstants.AllowedUsernameCharacters;
+                options.User.RequireUniqueEmail = false;
+                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+                options.Lockout.MaxFailedAccessAttempts = 3;
+            });
 
             //Add MVC Core
             services.AddMvcCore(
@@ -84,6 +121,9 @@ namespace Mvc.Server.Auth
                 .AddJsonFormatters()
                 .AddAuthorization(options =>
                 {
+                    //options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                    //    .RequireAuthenticatedUser().Build();
+                    
                     // Create a policy for each permission
                     foreach (var permissionClaim in PermissionClaims.GetAll())
                     {
@@ -115,72 +155,20 @@ namespace Mvc.Server.Auth
             {
                 // Configure the context to use Microsoft SQL Server.
                 options.UseSqlServer(opts.ConnectionStrings.SqlServerProvider);
+
                 // Register the entity sets needed by OpenIddict.
                 // Note: use the generic overload if you need
                 // to replace the default OpenIddict entities.
                 options.UseOpenIddict();
             });
 
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(Configuration)
-                .Enrich.FromLogContext()
-                .CreateLogger();
-
-            // Register the Identity services.
-            services.AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-
-            // Configure Identity to use the same JWT claims as OpenIddict instead
-            // of the legacy WS-Federation claims it uses by default (ClaimTypes),
-            // which saves you from doing the mapping in your authorization controller.
-            services.Configure<IdentityOptions>(options =>
-            {
-                options.ClaimsIdentity.UserNameClaimType = OpenIdConnectConstants.Claims.Name;
-                options.ClaimsIdentity.UserIdClaimType = OpenIdConnectConstants.Claims.Subject;
-                options.ClaimsIdentity.RoleClaimType = OpenIdConnectConstants.Claims.Role;
-
-                options.Password.RequireDigit = false;
-                options.Password.RequiredLength = 1;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireLowercase = false;
-                options.User.AllowedUserNameCharacters = ApplicationConstants.AllowedUsernameCharacters;
-                options.User.RequireUniqueEmail = false;
-                options.SignIn.RequireConfirmedEmail = false;
-                options.SignIn.RequireConfirmedPhoneNumber = false;
-                options.Lockout.MaxFailedAccessAttempts = 3;
-            });
-
-            //services.AddAuthentication(options =>
-            //    {
-            //        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            //    })
-
-            //    .AddJwtBearer(options =>
-            //    {
-            //        options.Authority = opts.Jwt.Authority;
-            //        options.Audience = opts.Jwt.Audience;
-            //        options.RequireHttpsMetadata = false;
-            //        options.TokenValidationParameters = new TokenValidationParameters
-            //        {
-            //            ValidateIssuerSigningKey = true,
-            //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.Jwt.SecretKey)),
-            //            ValidateIssuer = true,
-            //            ValidIssuer = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration)
-            //                .Jwt.Authority,
-            //            ValidateAudience = true,
-            //            ValidAudiences = new[] { opts.Jwt.Audience },
-            //            ValidateLifetime = true,
-            //        };
-            //    });
-
-
             // Register the OpenIddict services.
             services.AddOpenIddict(options =>
             {
+
                 // Register the Entity Framework stores.
                 options.AddEntityFrameworkCoreStores<ApplicationDbContext>();
+
                 // Register the ASP.NET Core MVC binder used by OpenIddict.
                 // Note: if you don't call this method, you won't be able to
                 // bind OpenIdConnectRequest or OpenIdConnectResponse parameters.
@@ -192,44 +180,90 @@ namespace Mvc.Server.Auth
                     .EnableTokenEndpoint(opts.Auth.TokenEndpoint)
                     .EnableUserinfoEndpoint(opts.Auth.UserInfoEndpoint);
 
-                // Note: the Mvc.Client sample only uses the code flow and the password flow, but you
-                // can enable the other flows if you need to support implicit or client credentials.
+                // Note: the Mvc.Client sample only uses the authorization code flow but you can enable
+                // the other flows if you need to support implicit, password or client credentials.
+                //options.AllowAuthorizationCodeFlow();
+
                 options
                     .AllowPasswordFlow()
                     .AllowRefreshTokenFlow()
                     .AllowAuthorizationCodeFlow()
                     .AllowClientCredentialsFlow();
 
-                //options.UseJsonWebTokens();
-                //options.AddEphemeralSigningKey();
-
-                options.AddSigningKey(
-                    new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration).Jwt.SecretKey)));
-                // Make the "client_id" parameter mandatory when sending a token request.
-                options.RequireClientIdentification();
+                // When request caching is enabled, authorization and logout requests
+                // are stored in the distributed cache by OpenIddict and the user agent
+                // is redirected to the same page with a single parameter (request_id).
+                // This allows flowing large OpenID Connect requests even when using
+                // an external authentication provider like Google, Facebook or Twitter.
+                options.EnableRequestCaching();
                 // During development, you can disable the HTTPS requirement.
                 options.DisableHttpsRequirement();
+
+
+                // Note: to use JWT access tokens instead of the default
+                // encrypted format, the following lines are required:
+                //
+                options.UseJsonWebTokens();
+                //options.AddEphemeralSigningKey();
+
+                options.AddSigningKey(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(
+                    Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration).Jwt.SecretKey)));
+
             });
+
+            // services.AddAuthentication(OAuthValidationDefaults.AuthenticationScheme);
+
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                //services.AddAuthentication(options =>
+                //    {
+                //        // options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                //        // options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                //        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                //        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                //    })
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = opts.Jwt.Authority;
+                    options.Audience = opts.Jwt.Audience;
+                    options.RequireHttpsMetadata = false;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.Jwt.SecretKey)),
+                        ValidateIssuer = true,
+                        ValidIssuer = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration)
+                            .Jwt.Authority,
+                        ValidateAudience = true,
+                        ValidAudiences = new[] { opts.Jwt.Audience },
+                        ValidateLifetime = true,
+                    };
+                });
+
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddSerilog();
 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
+
+            ////app.UseExampleMiddleware();
+            //// Enable middleware to serve generated Swagger as a JSON endpoint.
+            //app.UseSwagger();
+            app.UseDeveloperExceptionPage();
 
             app.UseStaticFiles();
 
             app.UseStatusCodePagesWithReExecute("/error");
-            app.UseAuthentication();
-            //app.UseExampleMiddleware();
-            app.UseMvcWithDefaultRoute();
 
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
-            app.UseSwagger();
+            app.UseAuthentication();
+           
+            app.UseMvcWithDefaultRoute();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS etc.), specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
@@ -237,7 +271,20 @@ namespace Mvc.Server.Auth
                 c.RoutePrefix = "apidocs";
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Web API");
             });
-
+            //app.UseOAuthIntrospection(options =>
+            //{
+            //    options.Authority = new Uri("http://localhost:5001/");
+            //    options.Audiences.Add("http://localhost:5000/");
+            //    options.ClientId = "mvc";
+            //    options.ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654";
+            //});
+            app.UseCors(options =>
+            {
+                options.AllowAnyHeader();
+                options.AllowAnyMethod();
+                options.AllowAnyOrigin();
+                options.AllowCredentials();
+            });
 
             // Seed the database with the sample applications.
             // Note: in a real world application, this step should be part of a setup script.
