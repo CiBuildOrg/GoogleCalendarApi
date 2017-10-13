@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using AspNet.Security.OpenIdConnect.Primitives;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -160,14 +161,15 @@ namespace Mvc.Server
 
             services.AddSingleton<HttpClient>();
 
-         //   services.Configure<SecureHeadersMiddlewareConfiguration>(
-          //      Configuration.GetSection("SecureHeadersMiddlewareConfiguration"));
+               services.Configure<SecureHeadersMiddlewareConfiguration>(
+                  Configuration.GetSection("SecureHeadersMiddlewareConfiguration"));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
             IOptions<SecureHeadersMiddlewareConfiguration> secureHeaderSettings)
         {
             loggerFactory.AddSerilog();
+            app.UseStaticFiles();
 
             if (env.IsDevelopment())
             {
@@ -179,15 +181,14 @@ namespace Mvc.Server
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-            
+
 
             app.UseAuthentication();
 
-            app.UseStaticFiles();
 
             app.UseStatusCodePagesWithReExecute("/error");
 
-           // app.UseSecureHeadersMiddleware(secureHeaderSettings.Value);
+            app.UseSecureHeadersMiddleware(secureHeaderSettings.Value);
 
             app.UseMvcWithDefaultRoute();
 

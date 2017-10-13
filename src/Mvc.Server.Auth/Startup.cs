@@ -237,6 +237,7 @@ namespace Mvc.Server.Auth
             ILoggerFactory loggerFactory, IOptions<SecureHeadersMiddlewareConfiguration> secureHeaderSettings)
         {
             loggerFactory.AddSerilog();
+            app.UseStaticFiles();
 
             if (env.IsDevelopment())
             {
@@ -251,7 +252,6 @@ namespace Mvc.Server.Auth
 
             ////app.UseExampleMiddleware();
 
-            app.UseStaticFiles();
 
             app.UseStatusCodePagesWithReExecute("/error");
 
