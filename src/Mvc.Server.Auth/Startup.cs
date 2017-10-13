@@ -124,9 +124,6 @@ namespace Mvc.Server.Auth
                 .AddJsonFormatters()
                 .AddAuthorization(options =>
                 {
-                    //options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
-                    //    .RequireAuthenticatedUser().Build();
-                    
                     // Create a policy for each permission
                     foreach (var permissionClaim in PermissionClaims.GetAll())
                     {
@@ -202,7 +199,6 @@ namespace Mvc.Server.Auth
                 // During development, you can disable the HTTPS requirement.
                 options.DisableHttpsRequirement();
 
-
                 // Note: to use JWT access tokens instead of the default
                 // encrypted format, the following lines are required:
                 //
@@ -214,18 +210,9 @@ namespace Mvc.Server.Auth
 
             });
 
-            // services.AddAuthentication(OAuthValidationDefaults.AuthenticationScheme);
-
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                //services.AddAuthentication(options =>
-                //    {
-                //        // options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                //        // options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                //        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                //        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                //    })
                 .AddJwtBearer(options =>
                 {
                     options.Authority = opts.Jwt.Authority;
@@ -253,15 +240,18 @@ namespace Mvc.Server.Auth
         {
             loggerFactory.AddSerilog();
 
-            //if (env.IsDevelopment())
-            //{
-            //    app.UseDeveloperExceptionPage();
-            //}
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseBrowserLink();
+                app.UseDatabaseErrorPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+            }
 
             ////app.UseExampleMiddleware();
-            //// Enable middleware to serve generated Swagger as a JSON endpoint.
-            //app.UseSwagger();
-            app.UseDeveloperExceptionPage();
 
             app.UseStaticFiles();
 
@@ -279,13 +269,7 @@ namespace Mvc.Server.Auth
                 c.RoutePrefix = "apidocs";
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Web API");
             });
-            //app.UseOAuthIntrospection(options =>
-            //{
-            //    options.Authority = new Uri("http://localhost:5001/");
-            //    options.Audiences.Add("http://localhost:5000/");
-            //    options.ClientId = "mvc";
-            //    options.ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654";
-            //});
+
             app.UseCors(options =>
             {
                 options.AllowAnyHeader();
@@ -293,7 +277,8 @@ namespace Mvc.Server.Auth
                 options.AllowAnyOrigin();
                 options.AllowCredentials();
             });
-            
+
+            app.UseSwagger();
 
             // Seed the database with the sample applications.
             // Note: in a real world application, this step should be part of a setup script.
