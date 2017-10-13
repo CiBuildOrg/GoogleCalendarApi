@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Mvc.Server.Core;
 using Mvc.Server.Database;
@@ -30,6 +31,8 @@ using Mvc.Server.Infrastructure.Utils;
 using MvcServer.Entities;
 using OpenIddict.Core;
 using OpenIddict.Models;
+using OwaspHeaders.Core.Extensions;
+using OwaspHeaders.Core.Models;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -241,9 +244,12 @@ namespace Mvc.Server.Auth
                     };
                 });
 
+            services.Configure<SecureHeadersMiddlewareConfiguration>(
+                Configuration.GetSection("SecureHeadersMiddlewareConfiguration"));
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env,
+            ILoggerFactory loggerFactory, IOptions<SecureHeadersMiddlewareConfiguration> secureHeaderSettings)
         {
             loggerFactory.AddSerilog();
 
@@ -262,7 +268,9 @@ namespace Mvc.Server.Auth
             app.UseStatusCodePagesWithReExecute("/error");
 
             app.UseAuthentication();
-           
+
+            app.UseSecureHeadersMiddleware(secureHeaderSettings.Value);
+
             app.UseMvcWithDefaultRoute();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS etc.), specifying the Swagger JSON endpoint.
@@ -285,6 +293,7 @@ namespace Mvc.Server.Auth
                 options.AllowAnyOrigin();
                 options.AllowCredentials();
             });
+            
 
             // Seed the database with the sample applications.
             // Note: in a real world application, this step should be part of a setup script.
