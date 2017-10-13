@@ -1,13 +1,4 @@
-﻿using System.Threading.Tasks;
-using AspNet.Security.OAuth.Validation;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Mvc.Server.Core;
-using Mvc.Server.Infrastructure.Mvc;
-using MvcServer.Entities;
-
-namespace Mvc.Server.Controllers
+﻿namespace Mvc.Server.Controllers
 {
     //[Route("api")]
     //public class ResourceController : BaseController

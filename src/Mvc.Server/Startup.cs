@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using AspNet.Security.OpenIdConnect.Primitives;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +17,7 @@ using Mvc.Server.DataObjects.Configuration;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
 using Mvc.Server.Infrastructure.Attributes;
+using Mvc.Server.Infrastructure.Filters;
 using Mvc.Server.Infrastructure.Security;
 using Mvc.Server.Infrastructure.Utils;
 using OpenIddict.Core;
@@ -46,7 +46,6 @@ namespace Mvc.Server
             services.AddOptions();
             services.Configure<AppOptions>(options => Core.Utilities.Configuration.ConfigurationBinder.Bind(Configuration, options));
             services.AddSingleton<IConfiguration>(Configuration);
-            var opts = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration);
 
             // Add Swagger generator
             services.AddSwaggerGen(options =>
@@ -58,19 +57,11 @@ namespace Mvc.Server
             services.AddMvcCore(
                     options =>
                     {
-                        // Add global authorization filter 
-                        var policy = new AuthorizationPolicyBuilder()
-                            .RequireAuthenticatedUser()
-                            .Build();
-
-                        //options.Filters.Add(new ApplicationAuthorizeFilter(policy));
-
                         // Add global exception handler for production
                         options.Filters.Add(typeof(CustomExceptionFilterAttribute));
 
                         // Add global validation filter
                         options.Filters.Add(typeof(ValidateModelFilterAttribute));
-
                     }
                 )
                 .AddJsonFormatters()

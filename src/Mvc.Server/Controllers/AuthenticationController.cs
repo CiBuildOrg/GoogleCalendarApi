@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mvc.Server.Controllers
 {
     public class AuthenticationController : Controller
     {
-        [HttpGet("~/signin")]   
+        [HttpGet("~/signin"), AllowAnonymous]   
         public ActionResult SignIn()
         {
             return Challenge(new AuthenticationProperties
@@ -20,7 +19,7 @@ namespace Mvc.Server.Controllers
             }, OpenIdConnectDefaults.AuthenticationScheme);
         }
 
-        [HttpGet("~/logout"), HttpPost("~/logout")]
+        [HttpGet("~/logout"), HttpPost("~/logout"), AllowAnonymous]
         public ActionResult SignOut()
         {
             // is redirected from the identity provider after a successful authorization flow and

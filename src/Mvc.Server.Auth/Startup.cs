@@ -6,9 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using AspNet.Security.OAuth.Validation;
 using AspNet.Security.OpenIdConnect.Primitives;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -393,15 +391,17 @@ namespace Mvc.Server.Auth
 
                 if (await manager.FindByClientIdAsync("mvc", cancellationToken) == null)
                 {
-                    var application = new OpenIddictApplication
+
+                    var application = new OpenIddictApplicationDescriptor
                     {
                         ClientId = "mvc",
                         DisplayName = "MVC client application",
-                        LogoutRedirectUri = "http://localhost:5000/signout-callback-oidc",
-                        RedirectUri = "http://localhost:5000/signin-oidc"
+                        RedirectUris = { new Uri("http://localhost:5000/signin-oidc") },
+                        PostLogoutRedirectUris = { new Uri("http://localhost:5000/signout-callback-oidc") },
+                        ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654",
                     };
 
-                    await manager.CreateAsync(application, "901564A5-E7FE-42CB-B10D-61EF6A8F3654", cancellationToken);
+                    await manager.CreateAsync(application, cancellationToken);
                 }
 
                 // To test this sample with Postman, use the following settings:
@@ -415,11 +415,11 @@ namespace Mvc.Server.Auth
                 // * Request access token locally: yes
                 if (await manager.FindByClientIdAsync("postman", cancellationToken) == null)
                 {
-                    var application = new OpenIddictApplication
+                    var application = new OpenIddictApplicationDescriptor
                     {
                         ClientId = "postman",
                         DisplayName = "Postman",
-                        RedirectUri = "",
+                        RedirectUris = { new Uri("https://www.getpostman.com/oauth2/callback") }
                     };
 
                     await manager.CreateAsync(application, cancellationToken);
