@@ -1,6 +1,5 @@
 ﻿@if (User?.Identity?.IsAuthenticated ?? false){
     <ul class="nav navbar-nav navbar-right">
-        <li>User : @User.Identity.Name</li>
         <li>
             <a class="btn btn-lg btn-success" href="/logout">Log out</a></li>
     </ul>
