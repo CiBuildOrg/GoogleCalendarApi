@@ -1,5 +1,9 @@
 # .NET Core (.net standard 2.0) Starter
 
+## Disclaimer
+
+This is currently under development. Not all things might work. The stable versions will be included under releases (when any). 
+
 This will serve as a general base for creating a backend project in .NET core 2.0 with [OpenIdDict](https://github.com/openiddict) authentication
 
 ## Getting Started
