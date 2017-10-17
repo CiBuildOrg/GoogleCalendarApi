@@ -2,10 +2,10 @@
   "name": "ASP.NET",
   "private": true,
   "dependencies": {
-    "bootstrap": "v4.0.0-beta",
-    "bootstrap-touch-carousel": "0.8.0",
-    "hammer.js": "2.0.4",
-    "jquery": "3.2.1",
+    "bootstrap": "v3.0.0",
+    "bootstrap-touch-carousel": "v0.8.0",
+    "hammerjs": "2.0.4",
+    "jquery": "jQuery#2.1.4",
     "jquery-validation": "1.17.0",
     "jquery-validation-unobtrusive": "v3.2.6"
   },

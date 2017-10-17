@@ -8,6 +8,9 @@ using Mvc.Server.Infrastructure.Mvc;
 using MvcServer.Entities;
 using Newtonsoft.Json.Linq;
 using OpenIddict.Core;
+using Mvc.Server.Infrastructure.Security;
+using System.Collections.Generic;
+using Mvc.Server.Core;
 
 namespace Mvc.Server.Auth.Controllers
 {
@@ -55,7 +58,26 @@ namespace Mvc.Server.Auth.Controllers
 
             if (User.HasClaim(OpenIdConnectConstants.Claims.Scope, OpenIddictConstants.Scopes.Roles))
             {
-                claims[OpenIddictConstants.Claims.Roles] = JArray.FromObject(await UserManager.GetRolesAsync(user));
+                List<string> rolesAndClaims = new List<string>();
+                rolesAndClaims.AddRange(await UserManager.GetRolesAsync(user));
+
+                foreach(var userClaim in PermissionClaims.GetAll())
+                {
+                    if(User.HasClaim(ApplicationConstants.PermissionClaimName, userClaim))
+                    {
+                        rolesAndClaims.Add(userClaim);
+                    }
+                }
+
+                claims[OpenIddictConstants.Claims.Roles] = JArray.FromObject(rolesAndClaims);
+            }
+
+            foreach(var customClaim in PermissionClaims.GetAll())
+            {
+                //if(User.HasClaim(x => x.Subject.Name == customClaim))
+                //{
+
+                //}
             }
 
             // Note: the complete list of standard claims supported by the OpenID Connect specification

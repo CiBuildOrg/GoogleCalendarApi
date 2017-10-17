@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using AspNet.Security.OpenIdConnect.Primitives;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +22,9 @@ using Mvc.Server.Infrastructure.Utils;
 using OpenIddict.Core;
 using OwaspHeaders.Core.Extensions;
 using OwaspHeaders.Core.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Mvc.Server.Infrastructure.Filters;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Mvc.Server
 {
@@ -59,6 +61,12 @@ namespace Mvc.Server
             services.AddMvcCore(
                     options =>
                     {
+                        // Add global authorization filter 
+                        //var policy = new AuthorizationPolicyBuilder()
+                        //   .RequireAuthenticatedUser()
+                        //  .Build();
+                        //options.Filters.Add(new ApplicationAuthorizeFilter(policy));
+
                         // Add global exception handler for production
                         options.Filters.Add(typeof(CustomExceptionFilterAttribute));
 
@@ -120,15 +128,14 @@ namespace Mvc.Server
             //    });
 
             services.AddAuthentication(options =>
-                {
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
 
-                .AddCookie(JwtBearerDefaults.AuthenticationScheme, options =>
-                {
-                    //options.LogoutPath = new PathString("/signout");
-                    options.LoginPath = new PathString("/signin");
-                })
+            .AddCookie(options =>
+            {
+                options.LoginPath = new PathString("/signin");
+            })
 
                 .AddOpenIdConnect(options =>
                 {
@@ -160,8 +167,8 @@ namespace Mvc.Server
 
             services.AddSingleton<HttpClient>();
 
-               services.Configure<SecureHeadersMiddlewareConfiguration>(
-                  Configuration.GetSection("SecureHeadersMiddlewareConfiguration"));
+            services.Configure<SecureHeadersMiddlewareConfiguration>(
+               Configuration.GetSection("SecureHeadersMiddlewareConfiguration"));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
@@ -195,7 +202,4 @@ namespace Mvc.Server
             });
         }
     }
-
-
-
 }

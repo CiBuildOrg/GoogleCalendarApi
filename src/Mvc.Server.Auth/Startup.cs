@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,7 +24,6 @@ using Mvc.Server.Core;
 using Mvc.Server.Database;
 using Mvc.Server.DataObjects.Configuration;
 using Mvc.Server.Infrastructure.Attributes;
-using Mvc.Server.Infrastructure.Filters;
 using Mvc.Server.Infrastructure.Security;
 using Mvc.Server.Infrastructure.Utils;
 using MvcServer.Entities;
@@ -33,6 +33,10 @@ using OwaspHeaders.Core.Extensions;
 using OwaspHeaders.Core.Models;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
+using Mvc.Server.Infrastructure.Filters;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
+using AspNet.Security.OpenIdConnect.Server;
 
 namespace Mvc.Server.Auth
 {
@@ -160,6 +164,20 @@ namespace Mvc.Server.Auth
                 options.UseOpenIddict();
             });
 
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "ServerCookie";
+            })
+
+            .AddCookie("ServerCookie", options =>
+            {
+                options.Cookie.Name = CookieAuthenticationDefaults.CookiePrefix + "ServerCookie";
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+                options.LoginPath = new PathString("/signin");
+                options.LogoutPath = new PathString("/signout");
+            }).AddOAuthValidation();
+
             // Register the OpenIddict services.
             services.AddOpenIddict(options =>
             {
@@ -200,7 +218,7 @@ namespace Mvc.Server.Auth
                 // Note: to use JWT access tokens instead of the default
                 // encrypted format, the following lines are required:
                 //
-                options.UseJsonWebTokens();
+                //options.UseJsonWebTokens();
                 //options.AddEphemeralSigningKey();
 
                 options.AddSigningKey(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(
@@ -208,26 +226,32 @@ namespace Mvc.Server.Auth
 
             });
 
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-            JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.Authority = opts.Jwt.Authority;
-                    options.Audience = opts.Jwt.Audience;
-                    options.RequireHttpsMetadata = false;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.Jwt.SecretKey)),
-                        ValidateIssuer = true,
-                        ValidIssuer = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration)
-                            .Jwt.Authority,
-                        ValidateAudience = true,
-                        ValidAudiences = new[] { opts.Jwt.Audience },
-                        ValidateLifetime = true,
-                    };
-                });
+            //services.AddAuthentication(Oauth.AuthenticationScheme)
+
+
+            //JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            //JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
+
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //    .AddJwtBearer(options =>
+            //    {
+            //        options.Authority = opts.Jwt.Authority;
+            //        options.Audience = opts.Jwt.Audience;
+            //        options.RequireHttpsMetadata = false;
+            //        options.TokenValidationParameters = new TokenValidationParameters
+            //        {
+            //            ValidateIssuerSigningKey = true,
+            //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.Jwt.SecretKey)),
+            //            ValidateIssuer = true,
+            //            ValidIssuer = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration)
+            //                .Jwt.Authority,
+            //            ValidateAudience = true,
+            //            ValidAudiences = new[] { opts.Jwt.Audience },
+            //            ValidateLifetime = true,
+            //        };
+            //    });
+
+            services.AddScoped<AuthorizationProvider>();
 
             services.Configure<SecureHeadersMiddlewareConfiguration>(
                 Configuration.GetSection("SecureHeadersMiddlewareConfiguration"));
@@ -251,9 +275,15 @@ namespace Mvc.Server.Auth
             }
 
             ////app.UseExampleMiddleware();
-
-
             app.UseStatusCodePagesWithReExecute("/error");
+
+            app.UseCors(options =>
+            {
+                options.AllowAnyHeader();
+                options.AllowAnyMethod();
+                options.AllowAnyOrigin();
+                options.AllowCredentials();
+            });
 
             app.UseAuthentication();
 
@@ -268,19 +298,13 @@ namespace Mvc.Server.Auth
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Web API");
             });
 
-            app.UseCors(options =>
-            {
-                options.AllowAnyHeader();
-                options.AllowAnyMethod();
-                options.AllowAnyOrigin();
-                options.AllowCredentials();
-            });
-
             app.UseSwagger();
-
-            // Seed the database with the sample applications.
-            // Note: in a real world application, this step should be part of a setup script.
-            InitializeAsync(app.ApplicationServices, CancellationToken.None).GetAwaiter().GetResult();
+            if (env.IsDevelopment())
+            {
+                // Seed the database with the sample applications.
+                // Note: in a real world application, this step should be part of a setup script.
+                InitializeAsync(app.ApplicationServices, CancellationToken.None).GetAwaiter().GetResult();
+            }
         }
 
         private static async Task InitializeAsync(IServiceProvider services, CancellationToken cancellationToken)
@@ -425,6 +449,151 @@ namespace Mvc.Server.Auth
                     await manager.CreateAsync(application, cancellationToken);
                 }
             }
+        }
+    }
+
+    public sealed class AuthorizationProvider : OpenIdConnectServerProvider
+    {
+        private readonly ApplicationDbContext _database;
+
+        public AuthorizationProvider(ApplicationDbContext database)
+        {
+            _database = database;
+        }
+
+        public override async Task ValidateAuthorizationRequest(ValidateAuthorizationRequestContext context)
+        {
+            // Note: the OpenID Connect server middleware supports the authorization code, implicit and hybrid flows
+            // but this authorization provider only accepts response_type=code authorization/authentication requests.
+            // You may consider relaxing it to support the implicit or hybrid flows. In this case, consider adding
+            // checks rejecting implicit/hybrid authorization requests when the client is a confidential application.
+            if (!context.Request.IsAuthorizationCodeFlow())
+            {
+                context.Reject(
+                    error: OpenIdConnectConstants.Errors.UnsupportedResponseType,
+                    description: "Only the authorization code flow is supported by this authorization server.");
+
+                return;
+            }
+
+            // Note: to support custom response modes, the OpenID Connect server middleware doesn't
+            // reject unknown modes before the ApplyAuthorizationResponse event is invoked.
+            // To ensure invalid modes are rejected early enough, a check is made here.
+            if (!string.IsNullOrEmpty(context.Request.ResponseMode) && !context.Request.IsFormPostResponseMode() &&
+                                                                       !context.Request.IsFragmentResponseMode() &&
+                                                                       !context.Request.IsQueryResponseMode())
+            {
+                context.Reject(
+                    error: OpenIdConnectConstants.Errors.InvalidRequest,
+                    description: "The specified 'response_mode' is unsupported.");
+
+                return;
+            }
+
+            // Retrieve the application details corresponding to the requested client_id.
+            var application = await (from entity in _database.OpenIdApplications
+                                     where entity.ClientId == context.ClientId
+                                     select entity).SingleOrDefaultAsync(context.HttpContext.RequestAborted);
+
+            if (application == null)
+            {
+                context.Reject(
+                    error: OpenIdConnectConstants.Errors.InvalidClient,
+                    description: "The specified client identifier is invalid.");
+
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(context.RedirectUri) &&
+                !string.Equals(context.RedirectUri, application.RedirectUris, StringComparison.Ordinal))
+            {
+                context.Reject(
+                    error: OpenIdConnectConstants.Errors.InvalidClient,
+                    description: "The specified 'redirect_uri' is invalid.");
+
+                return;
+            }
+
+            context.Validate(application.RedirectUris);
+        }
+
+        public override async Task ValidateTokenRequest(ValidateTokenRequestContext context)
+        {
+            // Note: the OpenID Connect server middleware supports authorization code, refresh token, client credentials
+            // and resource owner password credentials grant types but this authorization provider uses a safer policy
+            // rejecting the last two ones. You may consider relaxing it to support the ROPC or client credentials grant types.
+            if (!context.Request.IsAuthorizationCodeGrantType() && !context.Request.IsRefreshTokenGrantType())
+            {
+                context.Reject(
+                    error: OpenIdConnectConstants.Errors.UnsupportedGrantType,
+                    description: "Only authorization code and refresh token grant types " +
+                                 "are accepted by this authorization server.");
+
+                return;
+            }
+
+            // Note: client authentication is not mandatory for non-confidential client applications like mobile apps
+            // (except when using the client credentials grant type) but this authorization server uses a safer policy
+            // that makes client authentication mandatory and returns an error if client_id or client_secret is missing.
+            // You may consider relaxing it to support the resource owner password credentials grant type
+            // with JavaScript or desktop applications, where client credentials cannot be safely stored.
+            // In this case, call context.Skip() to inform the server middleware the client is not trusted.
+            if (string.IsNullOrEmpty(context.ClientId) || string.IsNullOrEmpty(context.ClientSecret))
+            {
+                context.Reject(
+                    error: OpenIdConnectConstants.Errors.InvalidRequest,
+                    description: "The mandatory 'client_id'/'client_secret' parameters are missing.");
+
+                return;
+            }
+
+            // Retrieve the application details corresponding to the requested client_id.
+            var application = await (from entity in _database.OpenIdApplications
+                                     where entity.ClientId == context.ClientId
+                                     select entity).SingleOrDefaultAsync(context.HttpContext.RequestAborted);
+
+            if (application == null)
+            {
+                context.Reject(
+                    error: OpenIdConnectConstants.Errors.InvalidClient,
+                    description: "The specified client identifier is invalid.");
+
+                return;
+            }
+
+            // Note: to mitigate brute force attacks, you SHOULD strongly consider applying
+            // a key derivation function like PBKDF2 to slow down the secret validation process.
+            // You SHOULD also consider using a time-constant comparer to prevent timing attacks.
+            // For that, you can use the CryptoHelper library developed by @henkmollema:
+            // https://github.com/henkmollema/CryptoHelper. If you don't need .NET Core support,
+            // SecurityDriven.NET/inferno is a rock-solid alternative: http://securitydriven.net/inferno/
+            if (!string.Equals(context.ClientSecret, application.ClientSecret, StringComparison.Ordinal))
+            {
+                context.Reject(
+                    error: OpenIdConnectConstants.Errors.InvalidClient,
+                    description: "The specified client credentials are invalid.");
+
+                return;
+            }
+
+            context.Validate();
+        }
+
+        public override async Task ValidateLogoutRequest(ValidateLogoutRequestContext context)
+        {
+            // When provided, post_logout_redirect_uri must exactly
+            // match the address registered by the client application.
+            if (!string.IsNullOrEmpty(context.PostLogoutRedirectUri) &&
+                !await _database.OpenIdApplications.AnyAsync(application => application.RedirectUris == context.PostLogoutRedirectUri))
+            {
+                context.Reject(
+                    error: OpenIdConnectConstants.Errors.InvalidRequest,
+                    description: "The specified 'post_logout_redirect_uri' is invalid.");
+
+                return;
+            }
+
+            context.Validate();
         }
     }
 }

@@ -289,8 +289,6 @@ namespace Mvc.Server.Auth.Controllers
                 ticket.SetScopes(scopes);
             }
 
-            ticket.SetResources(_appOptions.Jwt.Audience);
-
             // Note: by default, claims are NOT automatically included in the access and identity tokens.
             // To allow OpenIddict to serialize them, you must attach them a destination, that specifies
             // whether they should be included in access tokens, in identity tokens or in both.

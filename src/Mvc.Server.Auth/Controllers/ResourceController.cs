@@ -1,11 +1,11 @@
 ﻿using System.Threading.Tasks;
-using AspNet.Security.OAuth.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Mvc.Server.Core;
 using Mvc.Server.Infrastructure.Mvc;
 using MvcServer.Entities;
+using AspNet.Security.OAuth.Validation;
 
 namespace Mvc.Server.Auth.Controllers
 {

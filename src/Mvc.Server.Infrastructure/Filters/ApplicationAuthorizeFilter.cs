@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using AspNet.Security.OAuth.Validation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,8 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using AspNet.Security.OpenIdConnect.Server;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace Mvc.Server.Infrastructure.Filters
 {
@@ -115,7 +118,9 @@ namespace Mvc.Server.Infrastructure.Filters
                 if (authorizeAttribute != null)
                 {
                     var attribute = (AuthorizeAttribute)authorizeAttribute;
-                    if (attribute.AuthenticationSchemes == OAuthValidationDefaults.AuthenticationScheme)
+                    if (attribute.AuthenticationSchemes == OpenIdConnectServerDefaults.AuthenticationScheme 
+                        || attribute.AuthenticationSchemes == OpenIdConnectDefaults.AuthenticationScheme
+                        || attribute.AuthenticationSchemes == JwtBearerDefaults.AuthenticationScheme)
                     {
                         return;
                     }

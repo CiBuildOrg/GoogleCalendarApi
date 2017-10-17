@@ -2,13 +2,12 @@
   "name": "asp.net",
   "private": true,
   "dependencies": {
-    "bootstrap": "v4.0.0-beta",
-    "jquery": "3.2.1",
-    "jquery-validation": "1.17.0",
-    "jquery-validation-unobtrusive": "3.2.6",
+    "bootstrap": "v3.0.0",
     "bootstrap-touch-carousel": "v0.8.0",
-    "jQuery": "3.2.1",
-    "hammerjs": "v2.0.8"
+    "jquery": "jQuery#2.1.4",
+    "hammerjs": "2.0.4",
+    "jquery-validation": "jquery-validate#1.17.0",
+    "jquery-validation-unobtrusive": "v3.2.6"
   },
   "resolutions": {
     "bootstrap": "v4.0.0-beta",

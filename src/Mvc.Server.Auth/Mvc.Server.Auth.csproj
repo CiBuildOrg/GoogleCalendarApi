@@ -82,6 +82,7 @@
 
   <ItemGroup>
     <Folder Include="Views\Authorization\" />
+    <Folder Include="wwwroot\lib\" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
