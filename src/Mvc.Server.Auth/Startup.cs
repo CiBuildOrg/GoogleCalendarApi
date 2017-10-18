@@ -142,7 +142,8 @@ namespace Mvc.Server.Auth
                 options.EnableAuthorizationEndpoint(opts.Auth.AuthorizeEndpoint)
                     .EnableLogoutEndpoint(opts.Auth.LogoutEndpoint)
                     .EnableTokenEndpoint(opts.Auth.TokenEndpoint)
-                    .EnableUserinfoEndpoint(opts.Auth.UserInfoEndpoint);
+                    .EnableUserinfoEndpoint(opts.Auth.UserInfoEndpoint)
+                    .EnableIntrospectionEndpoint("/connect/introspect");
 
                 options
                     .AllowPasswordFlow()

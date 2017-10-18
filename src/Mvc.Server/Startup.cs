@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
+using AspNet.Security.OAuth.Introspection;
 
 namespace Mvc.Server
 {
@@ -61,23 +62,23 @@ namespace Mvc.Server
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
-            //services.AddAuthentication(options =>
-            //    {
-            //        options.DefaultScheme = OAuthIntrospectionDefaults.AuthenticationScheme;
-            //    })
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultScheme = OAuthIntrospectionDefaults.AuthenticationScheme;
+                })
 
-            //    .AddOAuthIntrospection(options =>
-            //    {
-            //        options.Authority = new Uri("http://localhost:5001/");
-            //        options.Audiences.Add("mvc");
-            //        options.ClientId = "mvc";
-            //        options.ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654";
-            //        options.RequireHttpsMetadata = false;
+                .AddOAuthIntrospection(options =>
+                {
+                    options.Authority = new Uri("http://localhost:5001/");
+                    options.Audiences.Add("http://localhost:5000/");
+                    options.ClientId = "mvc";
+                    options.ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654";
+                    options.RequireHttpsMetadata = false;
 
-            //        // Note: you can override the default name and role claims:
-            //        // options.NameClaimType = "custom_name_claim";
-            //        // options.RoleClaimType = "custom_role_claim";
-            //    });
+                    // Note: you can override the default name and role claims:
+                    options.NameClaimType = OpenIdConnectConstants.Claims.Name;
+                    options.RoleClaimType = OpenIdConnectConstants.Claims.Role;
+                });
             services.AddAuthentication(options =>
         {
             options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -109,10 +110,10 @@ namespace Mvc.Server
                 // retrieve the identity provider's configuration and spare you from setting
                 // the different endpoints URIs or the token validation parameters explicitly.
                 options.Authority = "http://localhost:5001/";
-                // options.Scope.Add(OpenIdConnectConstants.Scopes.OpenId);
+                options.Scope.Add(OpenIdConnectConstants.Scopes.OpenId);
                 options.Scope.Add(OpenIdConnectConstants.Scopes.Email);
-                //options.Scope.Add(OpenIdConnectConstants.Scopes.Profile);
-                //options.Scope.Add(OpenIdConnectConstants.Scopes.OfflineAccess);
+                options.Scope.Add(OpenIdConnectConstants.Scopes.Profile);
+                options.Scope.Add(OpenIdConnectConstants.Scopes.OfflineAccess);
                 options.Scope.Add(OpenIddictConstants.Scopes.Roles);
                 options.Resource = "http://localhost:5000/";
 
@@ -126,6 +127,9 @@ namespace Mvc.Server
                 options.TokenValidationParameters.RoleClaimType = OpenIdConnectConstants.Claims.Role;
                 options.TokenValidationParameters.AuthenticationType = CookieAuthenticationDefaults.AuthenticationScheme;
             });
+
+
+            
 
             services.AddMvc();
 
