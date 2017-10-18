@@ -244,37 +244,15 @@ namespace Mvc.Server.Auth.Controllers
             // Create a new authentication ticket holding the user identity.
             var ticket = new AuthenticationTicket(principal, properties,
                 OpenIdConnectServerDefaults.AuthenticationScheme);
+            // Set the list of scopes granted to the client application.
+            // Note: the offline_access scope must be granted
+            // to allow OpenIddict to return a refresh token.
+
+            var roleNames = await _userManager.GetRolesAsync(user);
+            var identity = ticket.Principal.Identity as ClaimsIdentity;
 
             if (!request.IsAuthorizationCodeGrantType())
             {
-                // Set the list of scopes granted to the client application.
-                // Note: the offline_access scope must be granted
-                // to allow OpenIddict to return a refresh token.
-
-                var roleNames = await _userManager.GetRolesAsync(user);
-                var identity = ticket.Principal.Identity as ClaimsIdentity;
-                var permissionClaims = new List<Claim>();
-
-                // Get all the roles and add them to the role claim
-                foreach (var roleName in roleNames)
-                {
-                    // Remove tenant id from role name to make it user friendly
-                    identity.AddClaim(OpenIdConnectConstants.Claims.Role,
-                        OpenIdConnectConstants.Destinations.AccessToken,
-                        OpenIdConnectConstants.Destinations.IdentityToken);
-                    var role = await _roleManager.FindByNameAsync(roleName);
-
-                    foreach (var claim in await _roleManager.GetClaimsAsync(role))
-                    {
-                        if (!permissionClaims.Contains(claim))
-                        {
-                            permissionClaims.Add(claim);
-                        }
-                    }
-                }
-
-
-
                 var scopes = new List<string>
                 {
                     OpenIdConnectConstants.Scopes.OpenId,
@@ -283,18 +261,12 @@ namespace Mvc.Server.Auth.Controllers
                     OpenIdConnectConstants.Scopes.OfflineAccess,
                     OpenIddictConstants.Scopes.Roles
                 }.Intersect(request.GetScopes()).ToList();
-
-                // Add permission claims to scope
-
-                scopes.AddRange(permissionClaims.Select(claim => claim.Value));
-
                 ticket.SetScopes(scopes);
             }
-
+            
             // Note: by default, claims are NOT automatically included in the access and identity tokens.
             // To allow OpenIddict to serialize them, you must attach them a destination, that specifies
             // whether they should be included in access tokens, in identity tokens or in both.
-
             foreach (var claim in ticket.Principal.Claims)
             {
                 // Never include the security stamp in the access and identity tokens, as it's a secret value.
@@ -303,18 +275,22 @@ namespace Mvc.Server.Auth.Controllers
                     continue;
                 }
 
+                
                 // Only add the iterated claim to the id_token if the corresponding scope was granted to the client application.
                 // The other claims will only be added to the access_token, which is encrypted when using the default format.
                 if ((claim.Type == OpenIdConnectConstants.Claims.Name && ticket.HasScope(OpenIdConnectConstants.Scopes.Profile)) ||
                     (claim.Type == OpenIdConnectConstants.Claims.Email && ticket.HasScope(OpenIdConnectConstants.Scopes.Email)) ||
                     (claim.Type == OpenIdConnectConstants.Claims.Role && ticket.HasScope(OpenIddictConstants.Claims.Roles)))
                 {
-                    claim.SetDestinations(OpenIdConnectConstants.Destinations.IdentityToken, OpenIdConnectConstants.Destinations.AccessToken);
+                    var type = claim.Type;
+                    claim.SetDestinations(OpenIdConnectConstants.Destinations.IdentityToken, 
+                        OpenIdConnectConstants.Destinations.AccessToken);
                 }
-
+                else
                 claim.SetDestinations(OpenIdConnectConstants.Destinations.AccessToken);
             }
 
+            ticket.SetResources(_appOptions.Jwt.Audience, _appOptions.Jwt.Authority);
             AddUserIdClaim(ticket, user);
 
             ticket.SetAudiences(_appOptions.Jwt.Audience, _appOptions.Jwt.Authority);

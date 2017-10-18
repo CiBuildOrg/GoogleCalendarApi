@@ -8,7 +8,6 @@ using Mvc.Server.Infrastructure.Mvc;
 using MvcServer.Entities;
 using Newtonsoft.Json.Linq;
 using OpenIddict.Core;
-using Mvc.Server.Infrastructure.Security;
 using System.Collections.Generic;
 using Mvc.Server.Core;
 
@@ -60,15 +59,6 @@ namespace Mvc.Server.Auth.Controllers
             {
                 List<string> rolesAndClaims = new List<string>();
                 rolesAndClaims.AddRange(await UserManager.GetRolesAsync(user));
-
-                foreach(var userClaim in PermissionClaims.GetAll())
-                {
-                    if(User.HasClaim(ApplicationConstants.PermissionClaimName, userClaim))
-                    {
-                        rolesAndClaims.Add(userClaim);
-                    }
-                }
-
                 claims[OpenIddictConstants.Claims.Roles] = JArray.FromObject(rolesAndClaims);
             }
             

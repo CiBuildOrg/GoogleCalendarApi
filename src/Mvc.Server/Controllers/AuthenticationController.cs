@@ -9,17 +9,16 @@ namespace Mvc.Server.Controllers
 {
     public class AuthenticationController : Controller
     {
-        [HttpGet("~/signin"), AllowAnonymous]   
+        [HttpGet("~/signin")]   
         public ActionResult SignIn()
         {
             return Challenge(new AuthenticationProperties
             {
                 RedirectUri = "/",
-                AllowRefresh = true,
             }, OpenIdConnectDefaults.AuthenticationScheme);
         }
 
-        [HttpGet("~/logout"), HttpPost("~/logout"), AllowAnonymous]
+        [HttpGet("~/logout"), HttpPost("~/logout")]
         public ActionResult SignOut()
         {
             // is redirected from the identity provider after a successful authorization flow and

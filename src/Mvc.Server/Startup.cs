@@ -1,30 +1,27 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net.Http;
 using AspNet.Security.OpenIdConnect.Primitives;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Mvc.Server.DataObjects.Configuration;
 using Serilog;
-using Swashbuckle.AspNetCore.Swagger;
-using Mvc.Server.Infrastructure.Attributes;
-using Mvc.Server.Infrastructure.Security;
-using Mvc.Server.Infrastructure.Utils;
 using OpenIddict.Core;
 using OwaspHeaders.Core.Extensions;
 using OwaspHeaders.Core.Models;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Mvc.Server.Infrastructure.Filters;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using System;
+using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 
 namespace Mvc.Server
 {
@@ -62,6 +59,8 @@ namespace Mvc.Server
                 .Enrich.FromLogContext()
                 .CreateLogger();
 
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
             //services.AddAuthentication(options =>
             //    {
             //        options.DefaultScheme = OAuthIntrospectionDefaults.AuthenticationScheme;
@@ -79,55 +78,56 @@ namespace Mvc.Server
             //        // options.NameClaimType = "custom_name_claim";
             //        // options.RoleClaimType = "custom_role_claim";
             //    });
-
             services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.DefaultSignOutScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.DefaultForbidScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        })
+        .AddCookie(options =>
+        {
+            options.LoginPath = new PathString("/signin");
+            options.LogoutPath = new PathString("/logout");
+        }).AddOpenIdConnect(options =>
             {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            })
+                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                // Note: these settings must match the application details
+                // inserted in the database at the server level.
+                options.ClientId = "mvc";
+                options.ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654";
+                options.RequireHttpsMetadata = false;
+                options.GetClaimsFromUserInfoEndpoint = true;
+                options.SaveTokens = true;
 
-            .AddCookie(options =>
-            {
-                options.LoginPath = new PathString("/signin");
-            })
+                // Use the authorization code flow.
+                options.ResponseType = OpenIdConnectResponseType.Code;
+                options.AuthenticationMethod = OpenIdConnectRedirectBehavior.RedirectGet;
+                // Note: setting the Authority allows the OIDC client middleware to automatically
+                // retrieve the identity provider's configuration and spare you from setting
+                // the different endpoints URIs or the token validation parameters explicitly.
+                options.Authority = "http://localhost:5001/";
+                // options.Scope.Add(OpenIdConnectConstants.Scopes.OpenId);
+                options.Scope.Add(OpenIdConnectConstants.Scopes.Email);
+                //options.Scope.Add(OpenIdConnectConstants.Scopes.Profile);
+                //options.Scope.Add(OpenIdConnectConstants.Scopes.OfflineAccess);
+                options.Scope.Add(OpenIddictConstants.Scopes.Roles);
+                options.Resource = "http://localhost:5000/";
 
-                .AddOpenIdConnect(options =>
+                options.SecurityTokenValidator = new JwtSecurityTokenHandler
                 {
-                    // Note: these settings must match the application details
-                    // inserted in the database at the server level.
-                    options.ClientId = "mvc";
-                    options.ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654";
-                    options.RequireHttpsMetadata = false;
-                    options.GetClaimsFromUserInfoEndpoint = true;
-                    options.SaveTokens = true;
+                    // Disable the built-in JWT claims mapping feature.
+                    InboundClaimTypeMap = new Dictionary<string, string>()
+                };
 
-                    // Use the authorization code flow.
-                    options.ResponseType = OpenIdConnectResponseType.Code;
-                    options.AuthenticationMethod = OpenIdConnectRedirectBehavior.RedirectGet;
-                    // Note: setting the Authority allows the OIDC client middleware to automatically
-                    // retrieve the identity provider's configuration and spare you from setting
-                    // the different endpoints URIs or the token validation parameters explicitly.
-                    options.Authority = "http://localhost:5001/";
+                options.TokenValidationParameters.NameClaimType = OpenIdConnectConstants.Claims.Name;
+                options.TokenValidationParameters.RoleClaimType = OpenIdConnectConstants.Claims.Role;
+                options.TokenValidationParameters.AuthenticationType = CookieAuthenticationDefaults.AuthenticationScheme;
+            });
 
-                    options.Scope.Add(OpenIdConnectConstants.Scopes.OpenId);
-                    options.Scope.Add(OpenIdConnectConstants.Scopes.Email);
-                    options.Scope.Add(OpenIdConnectConstants.Scopes.Profile);
-                    options.Scope.Add(OpenIdConnectConstants.Scopes.OfflineAccess);
-                    options.Scope.Add(OpenIddictConstants.Scopes.Roles);
-                });
-
-            services.AddAuthorization(options =>
-             {
-                 // Create a policy for each permission
-                 foreach (var permissionClaim in PermissionClaims.GetAll())
-                 {
-                     options.AddPolicy(permissionClaim, policy => policy.Requirements.Add(new PermissionRequirement(permissionClaim)));
-                 }
-             });
-
-            services
-                .AddMvc();
-
-            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+            services.AddMvc();
 
             services.AddSingleton<HttpClient>();
             services.Configure<SecureHeadersMiddlewareConfiguration>(
@@ -146,15 +146,13 @@ namespace Mvc.Server
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/home/error");
             }
 
             app.UseStaticFiles();
             app.UseAuthentication();
-            app.UseMvcWithDefaultRoute();
-
-
             app.UseSecureHeadersMiddleware(secureHeaderSettings.Value);
+            app.UseMvc();
 
             //// Enable middleware to serve generated Swagger as a JSON endpoint.
             //app.UseSwagger();

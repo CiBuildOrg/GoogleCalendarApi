@@ -19,22 +19,15 @@ using Mvc.Server.Database;
 using MvcServer.Entities;
 using Microsoft.AspNetCore.Identity;
 using Mvc.Server.Core;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Mvc.Server.Infrastructure.Security;
-using Microsoft.AspNetCore.Authorization;
 using OwaspHeaders.Core.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OwaspHeaders.Core.Extensions;
 using AspNet.Security.OpenIdConnect.Server;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Mvc.Server.Auth
 {
@@ -130,6 +123,9 @@ namespace Mvc.Server.Auth
                 options.Lockout.MaxFailedAccessAttempts = 3;
             });
 
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
+
             // Register the OpenIddict services.
             services.AddOpenIddict(options =>
             {
@@ -154,6 +150,13 @@ namespace Mvc.Server.Auth
                     .AllowAuthorizationCodeFlow()
                     .AllowClientCredentialsFlow();
 
+                options.RegisterScopes(OpenIdConnectConstants.Scopes.OpenId);
+                options.RegisterScopes(OpenIdConnectConstants.Scopes.Email);
+                options.RegisterScopes(OpenIdConnectConstants.Scopes.Profile);
+                options.RegisterScopes(OpenIdConnectConstants.Scopes.OfflineAccess);
+                options.RegisterScopes(OpenIddictConstants.Scopes.Roles);
+
+
                 // When request caching is enabled, authorization and logout requests
                 // are stored in the distributed cache by OpenIddict and the user agent
                 // is redirected to the same page with a single parameter (request_id).
@@ -162,18 +165,10 @@ namespace Mvc.Server.Auth
                 options.EnableRequestCaching();
                 // During development, you can disable the HTTPS requirement.
                 options.DisableHttpsRequirement();
+
             });
 
-            services.AddAuthorization(options =>
-            {
-                // Create a policy for each permission
-                foreach (var permissionClaim in PermissionClaims.GetAll())
-                {
-                    options.AddPolicy(permissionClaim, policy => policy.Requirements.Add(new PermissionRequirement(permissionClaim)));
-                }
-            });
-
-            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+            //services.AddAuthorization();
             services.AddAuthentication().AddOAuthValidation();
 
             services.AddScoped<AuthorizationProvider>();
@@ -255,11 +250,6 @@ namespace Mvc.Server.Auth
 
                     if (adminRole == null)
                         throw new Exception("Newly created role Admin could not be found");
-
-                    foreach (var claim in PermissionClaims.GetAdminClaims())
-                    {
-                        await roleManager.AddClaimAsync(adminRole, new Claim(ApplicationConstants.PermissionClaimName, claim));
-                    }
                 }
 
                 if (!roleManager.Roles.Any(x => x.Name == "User"))
@@ -275,11 +265,6 @@ namespace Mvc.Server.Auth
 
                     if (userRole == null)
                         throw new Exception("Newly created role Admin could not be found");
-
-                    foreach (var claim in PermissionClaims.GetAppUserClaims())
-                    {
-                        await roleManager.AddClaimAsync(userRole, new Claim(ApplicationConstants.PermissionClaimName, claim));
-                    }
                 }
 
                 if (await userManager.FindByEmailAsync("cioclea.doru@gmail.com") == null)
@@ -307,6 +292,7 @@ namespace Mvc.Server.Auth
 
                     await userManager.SetLockoutEnabledAsync(applicationUser, false);
                     await userManager.AddToRolesAsync(applicationUser, new[] { "Admin", "User" });
+
                 }
 
                 if (await userManager.FindByEmailAsync("cioclea.doru2@gmail.com") == null)

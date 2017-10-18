@@ -6,7 +6,7 @@ namespace Mvc.Server.Controllers
 {
     public class ProtectedController : Controller
     {
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles ="Admin"), HttpGet("~/protected")]
         public IActionResult Index()
         {
             return View();
