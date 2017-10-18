@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -15,15 +16,15 @@ namespace Mvc.Server.Controllers
             {
                 RedirectUri = "/",
                 AllowRefresh = true,
-
             }, OpenIdConnectDefaults.AuthenticationScheme);
         }
+
         [HttpGet("~/logout"), HttpPost("~/logout"), AllowAnonymous]
         public ActionResult SignOut()
         {
             // is redirected from the identity provider after a successful authorization flow and
             // to redirect the user agent to the identity provider to sign out.
-            return SignOut(OpenIdConnectDefaults.AuthenticationScheme);
+            return SignOut(CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
         }
     }
 }

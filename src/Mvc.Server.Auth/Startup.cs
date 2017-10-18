@@ -1,42 +1,40 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AspNet.Security.OpenIdConnect.Primitives;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using Mvc.Server.Core;
-using Mvc.Server.Database;
-using Mvc.Server.DataObjects.Configuration;
-using Mvc.Server.Infrastructure.Attributes;
-using Mvc.Server.Infrastructure.Security;
-using Mvc.Server.Infrastructure.Utils;
-using MvcServer.Entities;
 using OpenIddict.Core;
 using OpenIddict.Models;
-using OwaspHeaders.Core.Extensions;
-using OwaspHeaders.Core.Models;
 using Serilog;
-using Swashbuckle.AspNetCore.Swagger;
-using Mvc.Server.Infrastructure.Filters;
+using Mvc.Server.DataObjects.Configuration;
+using Microsoft.AspNetCore.Hosting;
+using Mvc.Server.Infrastructure.Attributes;
+using System.Linq;
+using Mvc.Server.Infrastructure.Utils;
+using Mvc.Server.Database;
+using MvcServer.Entities;
+using Microsoft.AspNetCore.Identity;
+using Mvc.Server.Core;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Mvc.Server.Infrastructure.Security;
+using Microsoft.AspNetCore.Authorization;
+using OwaspHeaders.Core.Models;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OwaspHeaders.Core.Extensions;
+using AspNet.Security.OpenIdConnect.Server;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc.Razor.Compilation;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
-using AspNet.Security.OpenIdConnect.Server;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Mvc.Server.Auth
 {
@@ -70,15 +68,40 @@ namespace Mvc.Server.Auth
                 .Enrich.FromLogContext()
                 .CreateLogger();
 
-            // Add Swagger generator
-            services.AddSwaggerGen(options =>
+            services.AddMvc(options =>
             {
-                options.SwaggerDoc("v1",
-                    new Info
-                    {
-                        Title = "Api Starter Swagger",
-                        Version = "v1"
-                    });
+                options.Filters.Add(typeof(CustomExceptionFilterAttribute));
+                options.Filters.Add(typeof(ValidateModelFilterAttribute));
+            }).ConfigureApplicationPartManager(manager =>
+            {
+                var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
+                if (oldMetadataReferenceFeatureProvider == null) return;
+
+                manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
+                manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
+            });
+
+            //// Add Swagger generator
+            //services.AddSwaggerGen(options =>
+            //{
+            //    options.SwaggerDoc("v1",
+            //        new Info
+            //        {
+            //            Title = "Api Starter Swagger",
+            //            Version = "v1"
+            //        });
+            //});
+
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                // Configure the context to use Microsoft SQL Server.
+                options.UseSqlServer(opts.ConnectionStrings.SqlServerProvider);
+
+                // Register the entity sets needed by OpenIddict.
+                // Note: use the generic overload if you need
+                // to replace the default OpenIddict entities.
+                options.UseOpenIddict();
+                options.EnableSensitiveDataLogging(true);
             });
 
             // Register the Identity services.
@@ -107,77 +130,6 @@ namespace Mvc.Server.Auth
                 options.Lockout.MaxFailedAccessAttempts = 3;
             });
 
-            //Add MVC Core
-            services.AddMvcCore(
-                    options =>
-                    {
-                        // Add global authorization filter 
-                        var policy = new AuthorizationPolicyBuilder()
-                            .RequireAuthenticatedUser()
-                            .Build();
-                        options.Filters.Add(new ApplicationAuthorizeFilter(policy));
-                        // Add global exception handler for production
-                        options.Filters.Add(typeof(CustomExceptionFilterAttribute));
-                        // Add global validation filter
-                        options.Filters.Add(typeof(ValidateModelFilterAttribute));
-
-                    }
-                )
-                .AddJsonFormatters()
-                .AddAuthorization(options =>
-                {
-                    // Create a policy for each permission
-                    foreach (var permissionClaim in PermissionClaims.GetAll())
-                    {
-                        options.AddPolicy(permissionClaim, policy => policy.Requirements.Add(new PermissionRequirement(permissionClaim)));
-                    }
-                })
-                .AddDataAnnotations()
-                .AddCors()
-                .AddApiExplorer().ConfigureApplicationPartManager(manager =>
-                {
-                    var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
-                    if (oldMetadataReferenceFeatureProvider == null) return;
-
-                    manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
-                    manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
-                });
-
-            services.AddMvc().ConfigureApplicationPartManager(manager =>
-            {
-                var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
-                if (oldMetadataReferenceFeatureProvider == null) return;
-
-                manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
-                manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
-            });
-
-            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
-            services.AddDbContext<ApplicationDbContext>(options =>
-            {
-                // Configure the context to use Microsoft SQL Server.
-                options.UseSqlServer(opts.ConnectionStrings.SqlServerProvider);
-
-                // Register the entity sets needed by OpenIddict.
-                // Note: use the generic overload if you need
-                // to replace the default OpenIddict entities.
-                options.UseOpenIddict();
-            });
-
-
-            services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = "ServerCookie";
-            })
-
-            .AddCookie("ServerCookie", options =>
-            {
-                options.Cookie.Name = CookieAuthenticationDefaults.CookiePrefix + "ServerCookie";
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
-                options.LoginPath = new PathString("/signin");
-                options.LogoutPath = new PathString("/signout");
-            }).AddOAuthValidation();
-
             // Register the OpenIddict services.
             services.AddOpenIddict(options =>
             {
@@ -196,10 +148,6 @@ namespace Mvc.Server.Auth
                     .EnableTokenEndpoint(opts.Auth.TokenEndpoint)
                     .EnableUserinfoEndpoint(opts.Auth.UserInfoEndpoint);
 
-                // Note: the Mvc.Client sample only uses the authorization code flow but you can enable
-                // the other flows if you need to support implicit, password or client credentials.
-                //options.AllowAuthorizationCodeFlow();
-
                 options
                     .AllowPasswordFlow()
                     .AllowRefreshTokenFlow()
@@ -214,42 +162,19 @@ namespace Mvc.Server.Auth
                 options.EnableRequestCaching();
                 // During development, you can disable the HTTPS requirement.
                 options.DisableHttpsRequirement();
-
-                // Note: to use JWT access tokens instead of the default
-                // encrypted format, the following lines are required:
-                //
-                //options.UseJsonWebTokens();
-                //options.AddEphemeralSigningKey();
-
-                options.AddSigningKey(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(
-                    Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration).Jwt.SecretKey)));
-
             });
 
-            //services.AddAuthentication(Oauth.AuthenticationScheme)
+            services.AddAuthorization(options =>
+            {
+                // Create a policy for each permission
+                foreach (var permissionClaim in PermissionClaims.GetAll())
+                {
+                    options.AddPolicy(permissionClaim, policy => policy.Requirements.Add(new PermissionRequirement(permissionClaim)));
+                }
+            });
 
-
-            //JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-            //JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
-
-            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //    .AddJwtBearer(options =>
-            //    {
-            //        options.Authority = opts.Jwt.Authority;
-            //        options.Audience = opts.Jwt.Audience;
-            //        options.RequireHttpsMetadata = false;
-            //        options.TokenValidationParameters = new TokenValidationParameters
-            //        {
-            //            ValidateIssuerSigningKey = true,
-            //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.Jwt.SecretKey)),
-            //            ValidateIssuer = true,
-            //            ValidIssuer = Core.Utilities.Configuration.ConfigurationBinder.Get<AppOptions>(Configuration)
-            //                .Jwt.Authority,
-            //            ValidateAudience = true,
-            //            ValidAudiences = new[] { opts.Jwt.Audience },
-            //            ValidateLifetime = true,
-            //        };
-            //    });
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+            services.AddAuthentication().AddOAuthValidation();
 
             services.AddScoped<AuthorizationProvider>();
 
@@ -261,8 +186,6 @@ namespace Mvc.Server.Auth
             ILoggerFactory loggerFactory, IOptions<SecureHeadersMiddlewareConfiguration> secureHeaderSettings)
         {
             loggerFactory.AddSerilog();
-            app.UseStaticFiles();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -274,8 +197,9 @@ namespace Mvc.Server.Auth
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            app.UseStaticFiles();
             ////app.UseExampleMiddleware();
-            app.UseStatusCodePagesWithReExecute("/error");
+            //app.UseStatusCodePagesWithReExecute("/error");
 
             app.UseCors(options =>
             {
@@ -288,17 +212,16 @@ namespace Mvc.Server.Auth
             app.UseAuthentication();
 
             app.UseSecureHeadersMiddleware(secureHeaderSettings.Value);
-
             app.UseMvcWithDefaultRoute();
 
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS etc.), specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c =>
-            {
-                c.RoutePrefix = "apidocs";
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Web API");
-            });
+            //// Enable middleware to serve swagger-ui (HTML, JS, CSS etc.), specifying the Swagger JSON endpoint.
+            //app.UseSwaggerUI(c =>
+            //{
+            //    c.RoutePrefix = "apidocs";
+            //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Web API");
+            //});
 
-            app.UseSwagger();
+            //app.UseSwagger();
             if (env.IsDevelopment())
             {
                 // Seed the database with the sample applications.

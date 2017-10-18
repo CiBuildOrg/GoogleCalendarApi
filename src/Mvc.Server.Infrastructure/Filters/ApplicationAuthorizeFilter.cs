@@ -114,17 +114,18 @@ namespace Mvc.Server.Infrastructure.Filters
                     return;
                 }
 
-                var authorizeAttribute = attributes.SingleOrDefault(x => x.GetType() == typeof(AuthorizeAttribute));
-                if (authorizeAttribute != null)
-                {
-                    var attribute = (AuthorizeAttribute)authorizeAttribute;
-                    if (attribute.AuthenticationSchemes == OpenIdConnectServerDefaults.AuthenticationScheme 
-                        || attribute.AuthenticationSchemes == OpenIdConnectDefaults.AuthenticationScheme
-                        || attribute.AuthenticationSchemes == JwtBearerDefaults.AuthenticationScheme)
-                    {
-                        return;
-                    }
-                }
+                //var authorizeAttribute = attributes.SingleOrDefault(x => x.GetType() == typeof(AuthorizeAttribute));
+                //if (authorizeAttribute != null)
+                //{
+                //    var attribute = (AuthorizeAttribute)authorizeAttribute;
+                //    if (attribute.AuthenticationSchemes == OpenIdConnectServerDefaults.AuthenticationScheme 
+                //        || attribute.AuthenticationSchemes == OAuthValidationDefaults.AuthenticationScheme
+                //        || attribute.AuthenticationSchemes == OpenIdConnectDefaults.AuthenticationScheme
+                //        || attribute.AuthenticationSchemes == JwtBearerDefaults.AuthenticationScheme)
+                //    {
+                //        return;
+                //    }
+                //}
             }
 
             bool Func(IFilterMetadata item) => item is IAllowAnonymousFilter;

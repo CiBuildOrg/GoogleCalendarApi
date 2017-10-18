@@ -38,9 +38,9 @@ namespace Mvc.Server.Auth.Controllers
             OpenIddictApplicationManager<OpenIddictApplication> applicationManager,
             IOptions<IdentityOptions> identityOptions,
             SignInManager<ApplicationUser> signInManager,
-            UserManager<ApplicationUser> userManager, 
+            UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
-            ApplicationDbContext context, 
+            ApplicationDbContext context,
             IOptions<AppOptions> appOptions)
         {
             _applicationManager = applicationManager;
@@ -273,6 +273,8 @@ namespace Mvc.Server.Auth.Controllers
                     }
                 }
 
+
+
                 var scopes = new List<string>
                 {
                     OpenIdConnectConstants.Scopes.OpenId,
@@ -315,7 +317,7 @@ namespace Mvc.Server.Auth.Controllers
 
             AddUserIdClaim(ticket, user);
 
-            ticket.SetAudiences(_appOptions.Jwt.Audience);
+            ticket.SetAudiences(_appOptions.Jwt.Audience, _appOptions.Jwt.Authority);
             ticket.SetAccessTokenLifetime(TimeSpan.FromSeconds(_appOptions.Jwt.AccessTokenLifetime));
             ticket.SetIdentityTokenLifetime(TimeSpan.FromSeconds(_appOptions.Jwt.IdentityTokenLifetime));
             ticket.SetRefreshTokenLifetime(TimeSpan.FromSeconds(_appOptions.Jwt.RefreshTokenLifetime));

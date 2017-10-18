@@ -51,58 +51,11 @@ namespace Mvc.Server
             services.Configure<AppOptions>(options => Core.Utilities.Configuration.ConfigurationBinder.Bind(Configuration, options));
             services.AddSingleton<IConfiguration>(Configuration);
 
-            // Add Swagger generator
-            services.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("v1", new Info { Title = "Api Starter", Version = "v1" });
-            });
-
-            //Add MVC Core
-            services.AddMvcCore(
-                    options =>
-                    {
-                        // Add global authorization filter 
-                        //var policy = new AuthorizationPolicyBuilder()
-                        //   .RequireAuthenticatedUser()
-                        //  .Build();
-                        //options.Filters.Add(new ApplicationAuthorizeFilter(policy));
-
-                        // Add global exception handler for production
-                        options.Filters.Add(typeof(CustomExceptionFilterAttribute));
-
-                        // Add global validation filter
-                        options.Filters.Add(typeof(ValidateModelFilterAttribute));
-                    }
-                )
-                .AddJsonFormatters()
-                .AddAuthorization(options =>
-                {
-                    // Create a policy for each permission
-                    foreach (var permissionClaim in PermissionClaims.GetAll())
-                    {
-                        options.AddPolicy(permissionClaim, policy => policy.Requirements.Add(new PermissionRequirement(permissionClaim)));
-                    }
-                })
-                .AddDataAnnotations()
-                .AddCors()
-                .AddApiExplorer().ConfigureApplicationPartManager(manager =>
-                {
-                    var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
-                    if (oldMetadataReferenceFeatureProvider == null) return;
-
-                    manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
-                    manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
-                });
-
-
-            services.AddMvc().ConfigureApplicationPartManager(manager =>
-            {
-                var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);
-                if (oldMetadataReferenceFeatureProvider == null) return;
-
-                manager.FeatureProviders.Remove(oldMetadataReferenceFeatureProvider);
-                manager.FeatureProviders.Add(new ReferencesMetadataReferenceFeatureProvider());
-            });
+            //// Add Swagger generator
+            //services.AddSwaggerGen(options =>
+            //{
+            //    options.SwaggerDoc("v1", new Info { Title = "Api Starter", Version = "v1" });
+            //});
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(Configuration)
@@ -162,11 +115,21 @@ namespace Mvc.Server
                     options.Scope.Add(OpenIddictConstants.Scopes.Roles);
                 });
 
+            services.AddAuthorization(options =>
+             {
+                 // Create a policy for each permission
+                 foreach (var permissionClaim in PermissionClaims.GetAll())
+                 {
+                     options.AddPolicy(permissionClaim, policy => policy.Requirements.Add(new PermissionRequirement(permissionClaim)));
+                 }
+             });
 
-            services.AddMvc();
+            services
+                .AddMvc();
+
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
             services.AddSingleton<HttpClient>();
-
             services.Configure<SecureHeadersMiddlewareConfiguration>(
                Configuration.GetSection("SecureHeadersMiddlewareConfiguration"));
         }
@@ -175,8 +138,6 @@ namespace Mvc.Server
             IOptions<SecureHeadersMiddlewareConfiguration> secureHeaderSettings)
         {
             loggerFactory.AddSerilog();
-            app.UseStaticFiles();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -188,18 +149,21 @@ namespace Mvc.Server
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            app.UseStaticFiles();
             app.UseAuthentication();
-            app.UseStatusCodePagesWithReExecute("/error");
-            app.UseSecureHeadersMiddleware(secureHeaderSettings.Value);
             app.UseMvcWithDefaultRoute();
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
-            app.UseSwagger();
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS etc.), specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c =>
-            {
-                c.RoutePrefix = "apidocs";
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Web API");
-            });
+
+
+            app.UseSecureHeadersMiddleware(secureHeaderSettings.Value);
+
+            //// Enable middleware to serve generated Swagger as a JSON endpoint.
+            //app.UseSwagger();
+            //// Enable middleware to serve swagger-ui (HTML, JS, CSS etc.), specifying the Swagger JSON endpoint.
+            //app.UseSwaggerUI(c =>
+            //{
+            //    c.RoutePrefix = "apidocs";
+            //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Web API");
+            //});
         }
     }
 }

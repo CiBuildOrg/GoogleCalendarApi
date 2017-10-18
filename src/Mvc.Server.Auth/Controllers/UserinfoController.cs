@@ -71,15 +71,7 @@ namespace Mvc.Server.Auth.Controllers
 
                 claims[OpenIddictConstants.Claims.Roles] = JArray.FromObject(rolesAndClaims);
             }
-
-            foreach(var customClaim in PermissionClaims.GetAll())
-            {
-                //if(User.HasClaim(x => x.Subject.Name == customClaim))
-                //{
-
-                //}
-            }
-
+            
             // Note: the complete list of standard claims supported by the OpenID Connect specification
             // can be found here: http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
 
