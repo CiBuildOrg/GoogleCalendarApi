@@ -23,7 +23,7 @@ namespace Mvc.Server.Controllers
                 return BadRequest();
             }
 
-            return Content($"You have authorized access to resources belonging to {identity.Name} on ResourceServer01.");
+            return Content($"You have authorized access to resources belonging to {identity.Name} on the resource server.");
         }
 
         [Authorize(AuthenticationSchemes = OAuthIntrospectionDefaults.AuthenticationScheme, Roles = "User, Admin")]
@@ -36,7 +36,7 @@ namespace Mvc.Server.Controllers
                 return BadRequest();
             }
 
-            return Content($"You have authorized access to resources belonging to {identity.Name} on ResourceServer01.");
+            return Content($"You have authorized access to resources belonging to {identity.Name} on the resource server.");
         }
     }
 }
