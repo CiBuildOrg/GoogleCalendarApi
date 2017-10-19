@@ -129,7 +129,6 @@ namespace Mvc.Server.Auth
             // Register the OpenIddict services.
             services.AddOpenIddict(options =>
             {
-
                 // Register the Entity Framework stores.
                 options.AddEntityFrameworkCoreStores<ApplicationDbContext>();
 
@@ -143,13 +142,14 @@ namespace Mvc.Server.Auth
                     .EnableLogoutEndpoint(opts.Auth.LogoutEndpoint)
                     .EnableTokenEndpoint(opts.Auth.TokenEndpoint)
                     .EnableUserinfoEndpoint(opts.Auth.UserInfoEndpoint)
-                    .EnableIntrospectionEndpoint("/connect/introspect");
+                    .EnableIntrospectionEndpoint(opts.Auth.IntrospectionEndpoint);
 
                 options
                     .AllowPasswordFlow()
                     .AllowRefreshTokenFlow()
                     .AllowAuthorizationCodeFlow()
-                    .AllowClientCredentialsFlow();
+                    .AllowClientCredentialsFlow()
+                    .AllowImplicitFlow();
 
                 options.RegisterScopes(OpenIdConnectConstants.Scopes.OpenId);
                 options.RegisterScopes(OpenIdConnectConstants.Scopes.Email);
@@ -166,10 +166,10 @@ namespace Mvc.Server.Auth
                 options.EnableRequestCaching();
                 // During development, you can disable the HTTPS requirement.
                 options.DisableHttpsRequirement();
-
+                //NOTE: change this to a real certificate in prod. 
+                options.AddDevelopmentSigningCertificate();
             });
 
-            //services.AddAuthorization();
             services.AddAuthentication().AddOAuthValidation();
 
             services.AddScoped<AuthorizationProvider>();
@@ -333,6 +333,19 @@ namespace Mvc.Server.Auth
                         RedirectUris = { new Uri("http://localhost:5000/signin-oidc") },
                         PostLogoutRedirectUris = { new Uri("http://localhost:5000/signout-callback-oidc") },
                         ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654",
+                    };
+
+                    await manager.CreateAsync(application, cancellationToken);
+                }
+
+                if (await manager.FindByClientIdAsync("api", cancellationToken) == null)
+                {
+
+                    var application = new OpenIddictApplicationDescriptor
+                    {
+                        ClientId = "api",
+                        DisplayName = "API client application",
+                        ClientSecret = "024f8e6c-d72f-4dad-975f-3bfbfc922427",
                     };
 
                     await manager.CreateAsync(application, cancellationToken);

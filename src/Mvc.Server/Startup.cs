@@ -65,14 +65,16 @@ namespace Mvc.Server
                 }).AddOAuthIntrospection(options =>
                 {
                     options.Authority = new Uri("http://localhost:5001/");
-                    options.Audiences.Add("http://localhost:5000/");
-                    options.ClientId = "mvc";
-                    options.ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654";
+                    options.Audiences.Add("api");
+                    options.ClientId = "api";
+                    options.ClientSecret = "024f8e6c-d72f-4dad-975f-3bfbfc922427";
                     options.RequireHttpsMetadata = false;
+
                     // Note: you can override the default name and role claims:
                     options.NameClaimType = OpenIdConnectConstants.Claims.Name;
                     options.RoleClaimType = OpenIdConnectConstants.Claims.Role;
                 });
+
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;

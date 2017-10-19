@@ -71,6 +71,25 @@ namespace Mvc.Server.Auth.Controllers
                 });
             }
 
+            if (!User.Identity.IsAuthenticated)
+            {
+                // If the client application request promptless authentication,
+                // return an error indicating that the user is not logged in.
+                if (request.HasPrompt(OpenIdConnectConstants.Prompts.None))
+                {
+                    var properties = new AuthenticationProperties(new Dictionary<string, string>
+                    {
+                        [OpenIdConnectConstants.Properties.Error] = OpenIdConnectConstants.Errors.LoginRequired,
+                        [OpenIdConnectConstants.Properties.ErrorDescription] = "The user is not logged in."
+                    });
+
+                    // Ask OpenIddict to return a login_required error to the client application.
+                    return Forbid(properties, OpenIdConnectServerDefaults.AuthenticationScheme);
+                }
+
+                return Challenge();
+            }
+
             // Flow the request_id to allow OpenIddict to restore
             // the original authorization request from the cache.
             return View(new AuthorizeViewModel
@@ -242,7 +261,8 @@ namespace Mvc.Server.Auth.Controllers
             var principal = await _signInManager.CreateUserPrincipalAsync(user);
 
             // Create a new authentication ticket holding the user identity.
-            var ticket = new AuthenticationTicket(principal, properties,
+            var ticket = new AuthenticationTicket(principal, 
+                properties ?? new AuthenticationProperties(),
                 OpenIdConnectServerDefaults.AuthenticationScheme);
             // Set the list of scopes granted to the client application.
             // Note: the offline_access scope must be granted
@@ -290,10 +310,10 @@ namespace Mvc.Server.Auth.Controllers
                 claim.SetDestinations(OpenIdConnectConstants.Destinations.AccessToken);
             }
 
-            ticket.SetResources(_appOptions.Jwt.Audience, _appOptions.Jwt.Authority);
+            ticket.SetResources(_appOptions.Jwt.Audience, _appOptions.Jwt.Authority, "api");
             AddUserIdClaim(ticket, user);
 
-            ticket.SetAudiences(_appOptions.Jwt.Audience, _appOptions.Jwt.Authority);
+            ticket.SetAudiences(_appOptions.Jwt.Audience, _appOptions.Jwt.Authority, "api");
             ticket.SetAccessTokenLifetime(TimeSpan.FromSeconds(_appOptions.Jwt.AccessTokenLifetime));
             ticket.SetIdentityTokenLifetime(TimeSpan.FromSeconds(_appOptions.Jwt.IdentityTokenLifetime));
             ticket.SetRefreshTokenLifetime(TimeSpan.FromSeconds(_appOptions.Jwt.RefreshTokenLifetime));

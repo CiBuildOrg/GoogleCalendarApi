@@ -10,5 +10,6 @@ namespace Mvc.Server.DataObjects.Configuration
         public string LogoutEndpoint { get; set; }
         public string TokenEndpoint { get; set; }
         public string UserInfoEndpoint { get; set; }
+        public string IntrospectionEndpoint { get; set; }
     }
 }

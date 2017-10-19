@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Mvc.Server.Core;
 using Mvc.Server.Exceptions;
 using MvcServer.Entities;
+using System;
 
 namespace Mvc.Server.Infrastructure.Mvc
 {
@@ -16,8 +17,16 @@ namespace Mvc.Server.Infrastructure.Mvc
             UserManager = userManager;
         }
 
+        protected BaseController()
+        {
+
+        }
+
         private async Task<ApplicationUser> GetCurrentUser()
         {
+            if (UserManager == null)
+                throw new Exception("User manager not set");
+
             var userId = User.FindFirst(ApplicationConstants.UserIdClaim).Value;
             var user = (await UserManager.FindByIdAsync(userId));
             if (user == null)

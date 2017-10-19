@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Mvc.Server.Infrastructure.Mvc;
 using MvcServer.Entities;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Mvc.Server.Controllers
@@ -12,24 +13,34 @@ namespace Mvc.Server.Controllers
     [Route("api")]
     public class ResourceController : BaseController
     {
-        public ResourceController(UserManager<ApplicationUser> userManager) : base(userManager)
+        public ResourceController() 
         {
         }
 
         [Authorize(AuthenticationSchemes = OAuthIntrospectionDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpGet("messageadmin")]
-        public async Task<IActionResult> GetMessageAdmin()
+        public IActionResult GetMessageAdmin()
         {
-            var user = await CurrentUser();
-            return Content($"{user.UserName} has been successfully authenticated.");
+            var identity = User.Identity as ClaimsIdentity;
+            if (identity == null)
+            {
+                return BadRequest();
+            }
+
+            return Content($"You have authorized access to resources belonging to {identity.Name} on ResourceServer01.");
         }
 
         [Authorize(AuthenticationSchemes = OAuthIntrospectionDefaults.AuthenticationScheme, Roles = "User, Admin")]
         [HttpGet("messageuser")]
-        public async Task<IActionResult> GetMessageUser()
+        public IActionResult GetMessageUser()
         {
-            var user = await CurrentUser();
-            return Content($"{user.UserName} has been successfully authenticated.");
+            var identity = User.Identity as ClaimsIdentity;
+            if (identity == null)
+            {
+                return BadRequest();
+            }
+
+            return Content($"You have authorized access to resources belonging to {identity.Name} on ResourceServer01.");
         }
     }
 }
