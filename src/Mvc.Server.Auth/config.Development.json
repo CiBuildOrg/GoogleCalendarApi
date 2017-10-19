@@ -6,15 +6,27 @@
   "ConnectionStrings": {
     "SqlServerProvider": "Data Source=.;Initial Catalog=MvcServer;Integrated Security=True;"
   },
-  "Jwt": {
-    "Audience": "http://localhost:5000/",
-    "Authority": "http://localhost:5001/",
-    "SecretKey": "secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret",
+  "TokenGeneration": {
+    "IncludeUserIdClaim": true,
+    "Audiences": [ "http://localhost:5000/", "http://localhost:5001/", "api" ],
+    "Resources": [ "http://localhost:5000/", "http://localhost:5001/", "api" ],
+    "AuthorityUrl": "http://localhost:5001/",
     "AccessTokenLifetime": 4800,
     "IdentityTokenLifetime": 4800,
     "RefreshTokenLifetime": 14800
   },
   "Auth": {
+    "EnableAuthorize": true,
+    "EnableLogout": true,
+    "EnableToken": true,
+    "EnableUserInfo": true,
+    "EnableIntrospection": true,
+    "AllowPasswordFlow": true,
+    "AllowRefreshTokenFlow": true,
+    "AllowAuthorizationCodeFlow": true,
+    "AllowClientCredentialsFlow": true,
+    "AllowImplicitFlow": true,
+    "UseHttps": false,
     "AuthorizeEndpoint": "/connect/authorize",
     "LogoutEndpoint": "/connect/logout",
     "TokenEndpoint": "/connect/token",

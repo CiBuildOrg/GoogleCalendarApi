@@ -8,7 +8,7 @@ namespace Mvc.Server.Auth.Infra.Configuration
     {
         public Application Application { get; set; }
         public ConnectionStrings ConnectionStrings { get; set; }
-        public Jwt Jwt { get; set; }
+        public TokenGeneration TokenGeneration { get; set; }
         public Auth Auth { get; set; }
     }
 }

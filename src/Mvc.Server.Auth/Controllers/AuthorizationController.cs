@@ -294,7 +294,6 @@ namespace Mvc.Server.Auth.Controllers
                 {
                     continue;
                 }
-
                 
                 // Only add the iterated claim to the id_token if the corresponding scope was granted to the client application.
                 // The other claims will only be added to the access_token, which is encrypted when using the default format.
@@ -310,13 +309,31 @@ namespace Mvc.Server.Auth.Controllers
                 claim.SetDestinations(OpenIdConnectConstants.Destinations.AccessToken);
             }
 
-            ticket.SetResources(_appOptions.Jwt.Audience, _appOptions.Jwt.Authority, "api");
-            AddUserIdClaim(ticket, user);
 
-            ticket.SetAudiences(_appOptions.Jwt.Audience, _appOptions.Jwt.Authority, "api");
-            ticket.SetAccessTokenLifetime(TimeSpan.FromSeconds(_appOptions.Jwt.AccessTokenLifetime));
-            ticket.SetIdentityTokenLifetime(TimeSpan.FromSeconds(_appOptions.Jwt.IdentityTokenLifetime));
-            ticket.SetRefreshTokenLifetime(TimeSpan.FromSeconds(_appOptions.Jwt.RefreshTokenLifetime));
+            if(_appOptions.TokenGeneration.Audiences.Any())
+            {
+                foreach(var audience in _appOptions.TokenGeneration.Audiences)
+                {
+                    ticket.SetAudiences(audience);
+                }
+            }
+
+            if(_appOptions.TokenGeneration.Resources.Any())
+            {
+                foreach(var resource in _appOptions.TokenGeneration.Resources)
+                {
+                    ticket.SetResources(resource);
+                }
+            }
+
+            if (_appOptions.TokenGeneration.IncludeUserIdClaim)
+            {
+                AddUserIdClaim(ticket, user);
+            }
+
+            ticket.SetAccessTokenLifetime(TimeSpan.FromSeconds(_appOptions.TokenGeneration.AccessTokenLifetime));
+            ticket.SetIdentityTokenLifetime(TimeSpan.FromSeconds(_appOptions.TokenGeneration.IdentityTokenLifetime));
+            ticket.SetRefreshTokenLifetime(TimeSpan.FromSeconds(_appOptions.TokenGeneration.RefreshTokenLifetime));
 
             return ticket;
         }

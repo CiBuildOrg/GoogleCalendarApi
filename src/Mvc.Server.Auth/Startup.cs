@@ -137,19 +137,56 @@ namespace Mvc.Server.Auth
                 // bind OpenIdConnectRequest or OpenIdConnectResponse parameters.
                 options.AddMvcBinders();
 
-                // Enable the authorization, logout, token and userinfo endpoints.
-                options.EnableAuthorizationEndpoint(opts.Auth.AuthorizeEndpoint)
-                    .EnableLogoutEndpoint(opts.Auth.LogoutEndpoint)
-                    .EnableTokenEndpoint(opts.Auth.TokenEndpoint)
-                    .EnableUserinfoEndpoint(opts.Auth.UserInfoEndpoint)
-                    .EnableIntrospectionEndpoint(opts.Auth.IntrospectionEndpoint);
+                // Enable the authorization, logout, token and userinfo endpoints per configuration
+                if (opts.Auth.EnableAuthorize)
+                {
+                    options.EnableAuthorizationEndpoint(opts.Auth.AuthorizeEndpoint);
+                }
 
-                options
-                    .AllowPasswordFlow()
-                    .AllowRefreshTokenFlow()
-                    .AllowAuthorizationCodeFlow()
-                    .AllowClientCredentialsFlow()
-                    .AllowImplicitFlow();
+                if(opts.Auth.EnableLogout)
+                {
+                    options.EnableLogoutEndpoint(opts.Auth.LogoutEndpoint);
+                }
+
+                if(opts.Auth.EnableToken)
+                {
+                    options.EnableTokenEndpoint(opts.Auth.TokenEndpoint);
+                }
+
+                if(opts.Auth.EnableUserInfo)
+                {
+                    options.EnableUserinfoEndpoint(opts.Auth.UserInfoEndpoint);
+                }
+
+                if(opts.Auth.EnableIntrospection)
+                {
+                    options.EnableIntrospectionEndpoint(opts.Auth.IntrospectionEndpoint);
+                }
+
+                if(opts.Auth.AllowPasswordFlow)
+                {
+                    options.AllowPasswordFlow();
+                }
+
+                if(opts.Auth.AllowRefreshTokenFlow)
+                {
+                    options.AllowRefreshTokenFlow();
+                }
+
+                if(opts.Auth.AllowAuthorizationCodeFlow)
+                {
+                    options.AllowAuthorizationCodeFlow();
+                }
+
+                if(opts.Auth.AllowClientCredentialsFlow)
+                {
+                    options.AllowClientCredentialsFlow();
+                }
+
+                if(opts.Auth.AllowImplicitFlow)
+                {
+                    options.AllowImplicitFlow();
+                }
 
                 options.RegisterScopes(OpenIdConnectConstants.Scopes.OpenId);
                 options.RegisterScopes(OpenIdConnectConstants.Scopes.Email);
@@ -157,23 +194,25 @@ namespace Mvc.Server.Auth
                 options.RegisterScopes(OpenIdConnectConstants.Scopes.OfflineAccess);
                 options.RegisterScopes(OpenIddictConstants.Scopes.Roles);
 
-
                 // When request caching is enabled, authorization and logout requests
                 // are stored in the distributed cache by OpenIddict and the user agent
                 // is redirected to the same page with a single parameter (request_id).
                 // This allows flowing large OpenID Connect requests even when using
                 // an external authentication provider like Google, Facebook or Twitter.
                 options.EnableRequestCaching();
-                // During development, you can disable the HTTPS requirement.
-                options.DisableHttpsRequirement();
+                
+                if(!opts.Auth.UseHttps)
+                {
+                    // During development, you can disable the HTTPS requirement.
+                    options.DisableHttpsRequirement();
+                }
+
                 //NOTE: change this to a real certificate in prod. 
                 options.AddDevelopmentSigningCertificate();
             });
 
             services.AddAuthentication().AddOAuthValidation();
-
             services.AddScoped<AuthorizationProvider>();
-
             services.Configure<SecureHeadersMiddlewareConfiguration>(
                 Configuration.GetSection(ApplicationConstants.SecureSectionConfigurationPath));
         }
