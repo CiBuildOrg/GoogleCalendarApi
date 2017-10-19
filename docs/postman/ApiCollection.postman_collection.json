@@ -1,16 +1,79 @@
 {
 	"variables": [],
 	"info": {
-		"name": "AdfCollection",
-		"_postman_id": "5dbf0527-4dff-2713-f10c-5d6cc6d7c592",
+		"name": "Core-WebApi-PostmanSuite",
+		"_postman_id": "e0f70c60-c504-8687-1d59-807a09d373d7",
 		"description": "",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Get Token",
+			"name": "Get Token For Remote Resource",
 			"request": {
-				"url": "http://localhost:5000/connect/token",
+				"url": "http://localhost:5001/connect/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "doruc",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "secret",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "api",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "openid email profile offline_access roles",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "resource",
+							"value": "api",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "024f8e6c-d72f-4dad-975f-3bfbfc922427",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Get Token For Authorization Server",
+			"request": {
+				"url": "http://localhost:5001/connect/token",
 				"method": "POST",
 				"header": [
 					{
@@ -54,7 +117,13 @@
 						},
 						{
 							"key": "resource",
-							"value": "http://localhost:5000/connect/token",
+							"value": "http://localhost:5001/",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "024f8e6c-d72f-4dad-975f-3bfbfc922427",
 							"description": "",
 							"type": "text"
 						}
@@ -65,7 +134,7 @@
 			"response": []
 		},
 		{
-			"name": "Refresh Token",
+			"name": "Refresh Token For Authorization Server",
 			"request": {
 				"url": "http://localhost:5000/connect/token",
 				"method": "POST",
@@ -110,9 +179,80 @@
 			"response": []
 		},
 		{
-			"name": "Access protected resource",
+			"name": "Refresh Token For Remote Resource",
+			"request": {
+				"url": "http://localhost:5001/connect/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "refresh_token",
+							"value": "CfDJ8C_FwOsLM3BMiy1kvbpIKLfymorXq1SPBGjO848XJdmQl1agV5IJ2BWs264uyHBLpLZpSwDZfeV5_H0f2be3c1ebl9ZyF9UF-lSoSSP3rT6zIdqvzZMlG4RPcnD6FtBHpeS1cbKp411E_ucUP0VXx0KEbYLsL5KDM9WgXwILBisRW3vHmRx7qVCLAjlm1sQKfw1BoBmLs8OtFwa2n4I_Xy5c7u_lB2cUO8H5kJOY2pdg9sveQMpD71-_YA2a4sqMJtPkWStT48mGX8O63JBB-Hf3tJexIbLsdFvi31ilKGEFuUkFuVnTW-Tis8R-olAZMzPCyteWEYf1S6v8WvGOS_TJjZdrzJvi5-yNfLo-HxkJZJjmhYqYf4kCByaYdoMbEviBfJkwT9x5mhFaBmirx_7cPD4DXHbYJ9RMbD1FfINsUj9vfHB_b78iEdUZe6zLMt5vqSnemZ8XlyCdZp6q4X7SFj9_xTlBo8pKjkElz5bC0ttL8hH36Tsw8_KlMaaZZLhQ9WwSYqYFe_2b-rSMuLUBAmufdMD2CJHMohVJPGPsHKla7tYgPfRXz_D6zQZqS43V1_P48ebCGaXO6gven4z0VeOz46nPBs-WnSBlK9IPGz9TBp3r2ryUwKubw23h7v-H6fO410fvMb0ouJ57-o_dPaagQ7LtKouRnOLwh263F9sn99NNqjEtH4-HwYAc1oX_GHa-sDelzLzpCQG5l-k3XZps1dFYvgeBg8MNrY57wkNta4NoAlIMYA7_l_aEDv-9zEK10TsRfpRf9BW8SSTWYtxCQ1cZWSISJ2HirOnLD38tLG2UjCyfk2FXknxOfCGhUHm7P_H1xNJas-LH5Jwd1tqD9MmvOnw9CwCpmjhbEKyf5zFb_FzzSel__b2Vf3iTUESTZYDFTtg7y5WjqX7lnMoWl8ufBFsFsWtCguyjTX5Mw2mxx1HyS9d3QZxqpbdfWzK5AW-8A-SRsY4YjGZsS3-WZqI7Xuda5nAl1yhEdENPCMFhpeIM2U6Xax7WBdYwi-lbYcCHaAqiwpg1g2I6NcxrQ4vrtkJi42ciBbKTx8IhJCGPqyNUgGX2ab5f6IBDwZw2alZb5v2AglA3b_J2i0jFYkx01G0R3-NCbfsvB_t7R2OMkv4CvdtVRdrShD-dAG0wFKG6Qryx306ODsuWgf1AbdGFFJ_MhM0YPSxqqJ38M8v3gd4BXqRjYQ3S62w2MLWln1m0dqd_5cy0MXh0aLiGvIQV5g1D1hhJzoHEhRxn_p0cTwhJ-zVM1ALIMg",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "refresh_token",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "api",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "openid email profile offline_access roles",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "024f8e6c-d72f-4dad-975f-3bfbfc922427",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Access protected resource on the Remote Resource",
 			"request": {
 				"url": "localhost:5000/api/message",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ik5LVVVUTlUtMlpIRUlUQlVVT0gyREZNWUVEVDRDME9UTFAtUFVUSVkiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmNjE1MTg2NS1lNzA3LTQ2MmQtOTQ4Mi0yNDMxNzY0YTRjYmEiLCJuYW1lIjoiZG9ydWMiLCJyb2xlIjpbIkFkbWluIiwiVXNlciJdLCJDdXN0b21DbGFpbVR5cGUiOiJDdXN0b21DbGFpbVZhbHVlIiwidG9rZW5fdXNhZ2UiOiJhY2Nlc3NfdG9rZW4iLCJqdGkiOiJhNWU1ZjgxYi1mN2Y3LTRhYTQtODI3Ny02NDM0M2UzM2IxZDAiLCJzY29wZSI6WyJvcGVuaWQiLCJlbWFpbCIsInByb2ZpbGUiLCJvZmZsaW5lX2FjY2VzcyIsInJvbGVzIl0sImF1ZCI6InJlc291cmNlLXNlcnZlciIsImF6cCI6InBvc3RtYW4iLCJuYmYiOjE1MDMwNTY2MDcsImV4cCI6MTUwMzA2MDIwNywiaWF0IjoxNTAzMDU2NjA3LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwMDAvIn0.IB7eqdKcubS9bj_MKawiP-Ng0R7Yuaga-fKni5oE3lviriYhMd2M-YnLc74I0rGH7o5T_EOPz2GjSuaGvAh_RNa_yuYffvlaTNOXkIGHcG8G9rsm7aCBN4CdUqQzxJpuQnWu1RayQ7rgm8TLkBQ_afUXm2fAN9BGlz8YoERR5LYoeZlkHylIvQ9GjgUwPBb5YyIP4My5sNBiYiE9Mah0JKGyoqO1YkW-UoQ6QIbgpWB6MuNl8dy9j4wd302g2R5xIGt9Gzz7I_S9bhYUvoY1NW-uUtRC5dwzhhfmY6Y0_TJCYu_yr81E6bKct8B9oTdw722Qdmzjbrc1qzoK5_H43A",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Access protected resource on the Authorization Server",
+			"request": {
+				"url": "localhost:5001/api/messageadmin",
 				"method": "GET",
 				"header": [
 					{
