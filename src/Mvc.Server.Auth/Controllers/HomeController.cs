@@ -5,7 +5,6 @@ namespace Mvc.Server.Auth.Controllers
 {
     public class HomeController : Controller
     {
-        [Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
             return View();
