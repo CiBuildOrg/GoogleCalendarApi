@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using AspNet.Security.OAuth.Introspection;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,7 @@ namespace Mvc.Server.Controllers
         {
         }
 
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = OAuthIntrospectionDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpGet("messageadmin")]
         public async Task<IActionResult> GetMessageAdmin()
         {
@@ -23,7 +24,7 @@ namespace Mvc.Server.Controllers
             return Content($"{user.UserName} has been successfully authenticated.");
         }
 
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme, Roles = "User, Admin")]
+        [Authorize(AuthenticationSchemes = OAuthIntrospectionDefaults.AuthenticationScheme, Roles = "User, Admin")]
         [HttpGet("messageuser")]
         public async Task<IActionResult> GetMessageUser()
         {

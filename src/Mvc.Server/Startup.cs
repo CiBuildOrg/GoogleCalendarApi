@@ -16,12 +16,9 @@ using Serilog;
 using OpenIddict.Core;
 using OwaspHeaders.Core.Extensions;
 using OwaspHeaders.Core.Models;
-using Microsoft.AspNetCore.Authentication;
 using System;
-using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity;
 using AspNet.Security.OAuth.Introspection;
 
 namespace Mvc.Server
@@ -65,34 +62,31 @@ namespace Mvc.Server
             services.AddAuthentication(options =>
                 {
                     options.DefaultScheme = OAuthIntrospectionDefaults.AuthenticationScheme;
-                })
-
-                .AddOAuthIntrospection(options =>
+                }).AddOAuthIntrospection(options =>
                 {
                     options.Authority = new Uri("http://localhost:5001/");
                     options.Audiences.Add("http://localhost:5000/");
                     options.ClientId = "mvc";
                     options.ClientSecret = "901564A5-E7FE-42CB-B10D-61EF6A8F3654";
                     options.RequireHttpsMetadata = false;
-
                     // Note: you can override the default name and role claims:
                     options.NameClaimType = OpenIdConnectConstants.Claims.Name;
                     options.RoleClaimType = OpenIdConnectConstants.Claims.Role;
                 });
             services.AddAuthentication(options =>
-        {
-            options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.DefaultSignOutScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.DefaultForbidScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        })
-        .AddCookie(options =>
-        {
-            options.LoginPath = new PathString("/signin");
-            options.LogoutPath = new PathString("/logout");
-        }).AddOpenIdConnect(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignOutScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultForbidScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            .AddCookie(options =>
+            {
+                options.LoginPath = new PathString("/signin");
+                options.LogoutPath = new PathString("/logout");
+            }).AddOpenIdConnect(options =>
             {
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 // Note: these settings must match the application details
@@ -128,11 +122,7 @@ namespace Mvc.Server
                 options.TokenValidationParameters.AuthenticationType = CookieAuthenticationDefaults.AuthenticationScheme;
             });
 
-
-            
-
             services.AddMvc();
-
             services.AddSingleton<HttpClient>();
             services.Configure<SecureHeadersMiddlewareConfiguration>(
                Configuration.GetSection("SecureHeadersMiddlewareConfiguration"));
