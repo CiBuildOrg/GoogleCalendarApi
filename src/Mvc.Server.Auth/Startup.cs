@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenIddict.Core;
 using OpenIddict.Models;
 using Serilog;
-using Mvc.Server.DataObjects.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Mvc.Server.Infrastructure.Attributes;
 using System.Linq;
@@ -28,6 +27,7 @@ using AspNet.Security.OpenIdConnect.Server;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
+using Mvc.Server.Auth.Infra.Configuration;
 
 namespace Mvc.Server.Auth
 {
@@ -175,7 +175,7 @@ namespace Mvc.Server.Auth
             services.AddScoped<AuthorizationProvider>();
 
             services.Configure<SecureHeadersMiddlewareConfiguration>(
-                Configuration.GetSection("SecureHeadersMiddlewareConfiguration"));
+                Configuration.GetSection(ApplicationConstants.SecureSectionConfigurationPath));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env,

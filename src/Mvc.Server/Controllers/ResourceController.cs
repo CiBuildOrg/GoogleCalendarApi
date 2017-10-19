@@ -1,12 +1,8 @@
 ﻿using AspNet.Security.OAuth.Introspection;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Mvc.Server.Infrastructure.Mvc;
-using MvcServer.Entities;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Mvc.Server.Controllers
 {

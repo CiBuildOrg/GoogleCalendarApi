@@ -15,12 +15,12 @@ using Microsoft.Extensions.Options;
 using Mvc.Server.Auth.Models;
 using Mvc.Server.Core;
 using Mvc.Server.Database;
-using Mvc.Server.DataObjects.Configuration;
 using Mvc.Server.DataObjects.Response;
 using Mvc.Server.Infrastructure.Attributes;
 using MvcServer.Entities;
 using OpenIddict.Core;
 using OpenIddict.Models;
+using Mvc.Server.Auth.Infra.Configuration;
 
 namespace Mvc.Server.Auth.Controllers
 {
