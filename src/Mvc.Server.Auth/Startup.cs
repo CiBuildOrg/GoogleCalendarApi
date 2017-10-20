@@ -220,6 +220,9 @@ namespace Mvc.Server.Auth
         public void Configure(IApplicationBuilder app, IHostingEnvironment env,
             ILoggerFactory loggerFactory, IOptions<SecureHeadersMiddlewareConfiguration> secureHeaderSettings)
         {
+            app.UseStaticFiles();
+            app.UseFileServer();
+
             loggerFactory.AddSerilog();
             if (env.IsDevelopment())
             {
@@ -232,7 +235,6 @@ namespace Mvc.Server.Auth
                 app.UseExceptionHandler("/Home/Error");
             }
 
-            app.UseStaticFiles();
             ////app.UseExampleMiddleware();
             //app.UseStatusCodePagesWithReExecute("/error");
 
