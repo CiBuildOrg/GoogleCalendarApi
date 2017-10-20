@@ -5,9 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.1.0-preview1-27296" />
-    <PackageReference Include="OpenIddict.Core" Version="2.0.0-rc1-0734" />
-    <PackageReference Include="OpenIddict.Models" Version="2.0.0-rc1-0734" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.1.0-preview1-27359" />
+    <PackageReference Include="OpenIddict.Core" Version="2.0.0-rc1-0742" />
+    <PackageReference Include="OpenIddict.Models" Version="2.0.0-rc1-0742" />
   </ItemGroup>
 
 </Project>

@@ -30,7 +30,8 @@
     "AuthorizeEndpoint": "/connect/authorize",
     "LogoutEndpoint": "/connect/logout",
     "TokenEndpoint": "/connect/token",
-    "UserInfoEndpoint": "/api/userinfo"
+    "UserInfoEndpoint": "/api/userinfo",
+    "IntrospectionEndpoint": "/connect/introspect"
   },
   "Serilog": {
     "MinimumLevel": {

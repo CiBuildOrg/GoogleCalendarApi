@@ -141,6 +141,9 @@ namespace Mvc.Server
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
             IOptions<SecureHeadersMiddlewareConfiguration> secureHeaderSettings)
         {
+            app.UseStaticFiles();
+            app.UseFileServer();
+
             loggerFactory.AddSerilog();
             if (env.IsDevelopment())
             {
@@ -153,7 +156,7 @@ namespace Mvc.Server
                 app.UseExceptionHandler("/home/error");
             }
 
-            app.UseStaticFiles();
+
             app.UseAuthentication();
             app.UseSecureHeadersMiddleware(secureHeaderSettings.Value);
             app.UseMvc();
