@@ -65,6 +65,10 @@ namespace Mvc.Server.Auth
             {
                 options.Filters.Add(typeof(CustomExceptionFilterAttribute));
                 options.Filters.Add(typeof(ValidateModelFilterAttribute));
+            }).AddJsonOptions(options =>
+            {
+                options.SerializerSettings.ContractResolver =
+                    new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
             }).ConfigureApplicationPartManager(manager =>
             {
                 var oldMetadataReferenceFeatureProvider = manager.FeatureProviders.FirstOrDefault(f => f is MetadataReferenceFeatureProvider);

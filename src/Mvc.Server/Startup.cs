@@ -132,7 +132,12 @@ namespace Mvc.Server
                 });
             }
 
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(options =>
+            {
+                options.SerializerSettings.ContractResolver =
+                    new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+            });
+
             services.AddSingleton<HttpClient>();
             services.Configure<SecureHeadersMiddlewareConfiguration>(
                Configuration.GetSection(ApplicationConstants.SecureSectionConfigurationPath));
