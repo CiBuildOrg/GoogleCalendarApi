@@ -1,23 +1,25 @@
 {
   "Application": {
-    "Name": "MvcServer",
+    "Name": "WebClient",
     "Version": "0.1.0"
   },
-
   "AuthenticationSettings": {
+    "AuthorityUrl": "http://localhost:5001/",
     "UseApi": true,
     "UseWeb": true,
     "ApiSettings": {
-      "Audience": "",
-      "ClientId": "",
-      "ClientSecret": ""
+      "Audience": "api",
+      "ClientId": "api",
+      "ClientSecret": "024f8e6c-d72f-4dad-975f-3bfbfc922427",
+      "RequireHttps": false
     },
     "WebSettings": {
-      "Resource": "",
-      "ClientId": "",
-      "ClientSecret": ""
+      "Resource": "http://localhost:5000/",
+      "ClientId": "mvc",
+      "ClientSecret": "901564A5-E7FE-42CB-B10D-61EF6A8F3654"
     }
   },
+
   "Serilog": {
     "MinimumLevel": {
       "Default": "Debug",

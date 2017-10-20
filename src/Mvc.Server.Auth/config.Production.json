@@ -1,6 +1,6 @@
 {
   "Application": {
-    "Name": "MvcServer",
+    "Name": "AuthorizationServer",
     "Version": "0.1.0"
   },
   "ConnectionStrings": {
