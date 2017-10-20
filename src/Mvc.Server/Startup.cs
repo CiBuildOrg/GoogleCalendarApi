@@ -90,11 +90,15 @@ namespace Mvc.Server
                     options.DefaultSignOutScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     options.DefaultForbidScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    
                 })
                 .AddCookie(options =>
                 {
+                    options.ExpireTimeSpan = TimeSpan.FromHours(1);
+                    options.SlidingExpiration = true;
                     options.LoginPath = new PathString(ApplicationConstants.CookieLoginPath);
                     options.LogoutPath = new PathString(ApplicationConstants.CookieLogoutPath);
+                    options.AccessDeniedPath = new PathString(ApplicationConstants.AccessDeniedPath);
                 }).AddOpenIdConnect(options =>
                 {
                     options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;

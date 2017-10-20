@@ -9,6 +9,6 @@
         // cookie studd
         public const string CookieLoginPath = "/signin";
         public const string CookieLogoutPath = "/logout";
-
+        public const string AccessDeniedPath = "/account/denied";
     }
 }

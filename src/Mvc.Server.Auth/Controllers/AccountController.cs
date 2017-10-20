@@ -96,5 +96,11 @@ namespace Mvc.Server.Auth.Controllers
         }
 
         #endregion
+
+        [HttpGet, Route("~/account/denied")]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
     }
 }
