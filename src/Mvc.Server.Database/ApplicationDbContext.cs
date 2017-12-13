@@ -16,5 +16,6 @@ namespace Mvc.Server.Database
         
         public DbSet<OpenIddictApplication> OpenIdApplications { get; set; }
         public DbSet<OpenIddictToken> OpenIddictTokens { get; set; }
+        public DbSet<GoogleUser> GoogleUsers { get; set; }
     }
 }
