@@ -17,6 +17,12 @@
       "Resource": "http://localhost:5000/",
       "ClientId": "mvc",
       "ClientSecret": "901564A5-E7FE-42CB-B10D-61EF6A8F3654"
+    },
+    "GoogleCalendar": {
+      "Username": "username",
+      "ClientId": "clientid",
+      "ClientSecret": "clientsecret",
+      "CalendarId": "calendarid"
     }
   },
 

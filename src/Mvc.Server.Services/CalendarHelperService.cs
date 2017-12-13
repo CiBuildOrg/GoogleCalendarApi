@@ -3,7 +3,6 @@ using Google.Apis.Calendar.v3.Data;
 using Microsoft.Extensions.Options;
 using Mvc.Server.Contracts;
 using Mvc.Server.DataObjects.Configuration;
-using System;
 using System.Threading.Tasks;
 
 namespace Mvc.Server.Services

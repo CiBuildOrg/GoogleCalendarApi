@@ -21,7 +21,8 @@
     "GoogleCalendar": {
       "Username": "username",
       "ClientId": "clientid",
-      "ClientSecret" :  "clientsecret"
+      "ClientSecret": "clientsecret",
+      "CalendarId":  "calendarid"
     } 
   },
 
