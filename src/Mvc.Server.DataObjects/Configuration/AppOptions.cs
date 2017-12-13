@@ -8,5 +8,6 @@ namespace Mvc.Server.DataObjects.Configuration
     {
         public Application Application { get; set; }
         public AuthSettings AuthenticationSettings { get; set; }
+        public GoogleOptions GoogleCalendar { get; set; }
     }
 }
