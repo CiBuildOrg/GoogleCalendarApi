@@ -28,12 +28,11 @@ namespace Mvc.Server.Infrastructure.Mvc
                 throw new Exception("User manager not set");
 
             var userId = User.FindFirst(ApplicationConstants.UserIdClaim).Value;
-            var user = (await UserManager.FindByIdAsync(userId));
+            var user = await UserManager.FindByIdAsync(userId);
             if (user == null)
             {
                 throw new BadRequestException("No user found");
             }
-
             return user;
         }
 
