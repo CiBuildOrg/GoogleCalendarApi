@@ -80,6 +80,7 @@
     <ProjectReference Include="..\Mvc.Server.DataObjects\Mvc.Server.DataObjects.csproj" />
     <ProjectReference Include="..\Mvc.Server.Exceptions\Mvc.Server.Exceptions.csproj" />
     <ProjectReference Include="..\Mvc.Server.Infrastructure\Mvc.Server.Infrastructure.csproj" />
+    <ProjectReference Include="..\Mvc.Server.Services\Mvc.Server.Services.csproj" />
     <ProjectReference Include="..\MvcServer.Entities\MvcServer.Entities.csproj" />
   </ItemGroup>
 

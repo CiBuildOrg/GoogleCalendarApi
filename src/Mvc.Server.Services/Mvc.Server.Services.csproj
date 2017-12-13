@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\vs\MvcServer.All\Mvc.Server.Contracts\Mvc.Server.Contracts.csproj" />
     <ProjectReference Include="..\Mvc.Server.Core\Mvc.Server.Core.csproj" />
     <ProjectReference Include="..\Mvc.Server.Database\Mvc.Server.Database.csproj" />
     <ProjectReference Include="..\Mvc.Server.DataObjects\Mvc.Server.DataObjects.csproj" />

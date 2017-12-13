@@ -21,6 +21,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Collections.Generic;
 using AspNet.Security.OAuth.Introspection;
 using Mvc.Server.Core;
+using Mvc.Server.Services;
+using Google.Apis.Util.Store;
+using Mvc.Server.Services.Utils;
+using Mvc.Server.Contracts;
 
 namespace Mvc.Server
 {
@@ -143,6 +147,11 @@ namespace Mvc.Server
             });
 
             services.AddSingleton<HttpClient>();
+
+            // register services
+            services.AddScoped<IDataStore, DatabaseDataStore>();
+            services.AddScoped<IGoogleCalendarFactory, GoogleCalendarFactory>();
+
             services.Configure<SecureHeadersMiddlewareConfiguration>(
                Configuration.GetSection(ApplicationConstants.SecureSectionConfigurationPath));
         }
@@ -164,7 +173,6 @@ namespace Mvc.Server
             {
                 app.UseExceptionHandler("/home/error");
             }
-
 
             app.UseAuthentication();
             app.UseSecureHeadersMiddleware(secureHeaderSettings.Value);

@@ -8,4 +8,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.1.0-preview1-27359" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\vs\MvcServer.All\Mvc.Server.Contracts\Mvc.Server.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>
