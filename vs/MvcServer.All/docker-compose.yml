@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  mvc.server.auth:
+    image: mvc.server.auth
+    build:
+      context: ./../../src/Mvc.Server.Auth
+      dockerfile: Dockerfile
+  mvc.server:
+    image: mvc.server
+    build:
+      context: ./../../src/Mvc.server
+      dockerfile: Dockerfile
